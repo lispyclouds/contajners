@@ -1,0 +1,24 @@
+{:binding {:force-nl? true
+           :justify?  true}
+ :fn-map  {"defn"     :arg1-force-nl
+           "defn-"    :arg1-force-nl
+           "do"       :flow
+           "fn"       :arg1-force-nl
+           "format"   :gt2-force-nl
+           "if"       :arg1-force-nl
+           "try"      :flow
+           "vector"   :force-nl-body
+           "when"     :arg1-force-nl
+           "when-not" :arg1-force-nl}
+ :list    {:indent-arg  2
+           :respect-nl? true}
+ :vector  {:respect-nl? true}
+ :map     {:comma?      false
+           :sort?       false
+           :justify?    true
+           :respect-nl? true
+           :lift-ns?    false}
+ :pair    {:justify? true}
+ :pair-fn {:hang? false}
+ :style   :community
+ :width   120}
