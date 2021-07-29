@@ -142,14 +142,15 @@
                               (name engine)
                               version))))))
 
-;; TODO: Download in a pmap, not sure why it doesn't work from CLI
 (defn run
   "Driver fn, iterates over the sources, downloads, processes and saves as resources."
   [& _]
   (let [download-info (for [[engine {:keys [url namespaces versions]}] sources
                             version versions]
                         [engine url version namespaces])]
-    (run! #(apply dowload-and-process %) download-info)))
+    (->> download-info
+         (pmap #(apply dowload-and-process %))
+         (dorun))))
 
 (comment
   (set! *warn-on-reflection* true)
