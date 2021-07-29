@@ -43,6 +43,19 @@
 
 ;; TODO: Better?
 (defn ->category
+  "Given a path and a set of namespaces, returns the (namespaced)category.
+
+  path: /containers/json
+  namespaces: #{}
+  category: :containers
+
+  path: /libpod/containers/json
+  namespaces: #{\"libpod\"}
+  category: :libpod/containers
+
+  The category is the prefix of the path being passed. eg /containers, /images
+  The set of namespaces, if passed, determines if the category is to be namespaced. eg /libpod/containers and /containers
+  The namespace is useful to distinguish similarly named ops in APIs supporting compatibility with other engines."
   [path namespaces]
   (let [matched  (find-first #(s/starts-with? path %) namespaces)
         nspace   (when matched
@@ -61,6 +74,7 @@
       (keyword category))))
 
 (defn ->params
+  "Given a io.swagger.v3.oas.models.parameters.Parameter, returns a map of necessary keys."
   [^Parameter param]
   {:name     (.getName param)
    :in       (keyword (.getIn param))
@@ -70,6 +84,7 @@
                  .getType)})
 
 (defn ->operation-info
+  "Given a path, http method and an io.swagger.v3.oas.models.Operation, returns a map of operation id and necessary keys."
   [path method ^Operation operation]
   {(keyword (.getOperationId operation)) {:summary (.getSummary operation)
                                           :method  (-> method
@@ -79,6 +94,7 @@
                                           :params  (map ->params (.getParameters operation))}})
 
 (defn ->operation
+  "Given a set of namespaces, path and a io.swagger.v3.oas.models.PathItem returns a list of maps of operations."
   [namespaces path ^PathItem path-info]
   (let [operations (.readOperationsMap path-info)]
     (->> operations
@@ -86,6 +102,12 @@
          (map #(hash-map (->category path namespaces) %)))))
 
 (defn parse
+  "Given a set of namespaces and the OpenAPI 2.0 spec as a string, returns the spec in the following format:
+  {:category1 {:operation-id1 {:summary \"summary\"
+                               :method  :HTTP_METHOD
+                               :path    \"/path/to/api\"
+                               :params  [{:name \"..\"}]}}
+   :namespaced/category {...}}"
   [namespaces ^String spec]
   (let [parse-options (doto (ParseOptions.)
                         (.setResolveFully true))]
@@ -96,6 +118,7 @@
          (apply (partial merge-with into)))))
 
 (defn write-api
+  "Writes the data to a path, creating it if non-existent."
   [path content]
   (when-not (.exists (io/file path))
     (io/make-parents path))
@@ -106,9 +129,10 @@
 
 ;; TODO: Download in async
 (defn dowload-and-process
-  [engine url-format version namespaces]
+  "Given the engine, url-template, api version and namespaces, downloads and writes out as an edn file in resources."
+  [engine url-template version namespaces]
   (println (format "Processing version %s for %s" version engine))
-  (let [{:keys [status body]} (http/get (format url-format version))]
+  (let [{:keys [status body]} (http/get (format url-template version))]
     (if (>= status 400)
       (throw (RuntimeException. (format "Error fetching version %s: %s"
                                         version
@@ -121,6 +145,7 @@
 
 ;; TODO: Download in a pmap, not sure why it doesn't work from CLI
 (defn run
+  "Driver fn, iterates over the sources, downloads, processes and saves as resources."
   [& _]
   (let [download-info (for [[engine {:keys [url namespaces versions]}] sources
                             version versions]
