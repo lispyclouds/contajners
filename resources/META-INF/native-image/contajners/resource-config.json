@@ -1,0 +1,7 @@
+{
+  "resources": [
+    { "pattern": "contajners/docker/.+\\.edn" },
+    { "pattern": "contajners/podman/.+\\.edn" }
+  ],
+  "bundles": []
+}
