@@ -4,4 +4,9 @@
  :aliases {:fetch-api {:replace-paths ["fetch_api"]
                        :extra-deps    {io.swagger.parser.v3/swagger-parser {:mvn/version "2.0.27"}
                                        java-http-clj/java-http-clj         {:mvn/version "0.4.2"}}
-                       :exec-fn       main/run}}}
+                       :exec-fn       main/run}
+           :test      {:extra-deps {lambdaisland/kaocha                 {:mvn/version "1.0.861"}
+                                    org.clojure/test.check              {:mvn/version "1.1.0"}
+                                    io.swagger.parser.v3/swagger-parser {:mvn/version "2.0.27"}
+                                    java-http-clj/java-http-clj         {:mvn/version "0.4.2"}}
+                       :main-opts  ["-m" "kaocha.runner" "--reporter" "kaocha.report.progress/report"]}}}

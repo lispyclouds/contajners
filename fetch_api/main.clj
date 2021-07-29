@@ -50,7 +50,7 @@
   category: :containers
 
   path: /libpod/containers/json
-  namespaces: #{\"libpod\"}
+  namespaces: #{\"/libpod\"}
   category: :libpod/containers
 
   The category is the prefix of the path being passed. eg /containers, /images
@@ -83,7 +83,7 @@
                  .getSchema
                  .getType)})
 
-(defn ->operation-info
+(defn ->operation
   "Given a path, http method and an io.swagger.v3.oas.models.Operation, returns a map of operation id and necessary keys."
   [path method ^Operation operation]
   {(keyword (.getOperationId operation)) {:summary (.getSummary operation)
@@ -93,13 +93,12 @@
                                           :path    path
                                           :params  (map ->params (.getParameters operation))}})
 
-(defn ->operation
+(defn ->operations
   "Given a set of namespaces, path and a io.swagger.v3.oas.models.PathItem returns a list of maps of operations."
-  [namespaces path ^PathItem path-info]
-  (let [operations (.readOperationsMap path-info)]
-    (->> operations
-         (map #(->operation-info path (key %) (val %)))
-         (map #(hash-map (->category path namespaces) %)))))
+  [namespaces path ^PathItem path-item]
+  (->> (.readOperationsMap path-item)
+       (map #(->operation path (key %) (val %)))
+       (map #(hash-map (->category path namespaces) %))))
 
 (defn parse
   "Given a set of namespaces and the OpenAPI 2.0 spec as a string, returns the spec in the following format:
@@ -114,7 +113,7 @@
     (->> (.readContents (OpenAPIParser.) spec nil parse-options) ; specs are still Swagger 2.0 🙄
          (.getOpenAPI)
          (.getPaths)
-         (mapcat #(->operation namespaces (key %) (val %)))
+         (mapcat #(->operations namespaces (key %) (val %)))
          (apply (partial merge-with into)))))
 
 (defn write-api
