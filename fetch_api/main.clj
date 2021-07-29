@@ -107,7 +107,7 @@
 ;; TODO: Download in async
 (defn dowload-and-process
   [engine url-format version namespaces]
-  (println (format "Downloading version %s from %s" version url-format))
+  (println (format "Processing version %s for %s" version engine))
   (let [{:keys [status body]} (http/get (format url-format version))]
     (if (>= status 400)
       (throw (RuntimeException. (format "Error fetching version %s: %s"
@@ -119,12 +119,13 @@
                               (name engine)
                               version))))))
 
+;; TODO: Download in a pmap, not sure why it doesn't work from CLI
 (defn run
   [& _]
   (let [download-info (for [[engine {:keys [url namespaces versions]}] sources
                             version versions]
                         [engine url version namespaces])]
-    (pmap #(apply dowload-and-process %) download-info)))
+    (run! #(apply dowload-and-process %) download-info)))
 
 (comment
   (set! *warn-on-reflection* true)
