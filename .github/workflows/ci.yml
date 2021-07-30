@@ -1,0 +1,33 @@
+name: Tests
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v2"
+
+      - name: "Prepare Java"
+        uses: "actions/setup-java@v2"
+        with:
+          distribution: 'adopt'
+          java-version: '16'
+
+      - name: "Prepare tools-deps"
+        uses: "DeLaGuardo/setup-clojure@master"
+        with:
+          cli: '1.10.3.933'
+
+      - name: "Apply Cache"
+        uses: "actions/cache@v2"
+        with:
+          path: |
+            ~/.m2/repository
+          key: "contajners-${{ hashFiles('deps.edn') }}"
+          restore-keys: "$contajners-"
+
+      - name: "Run tests"
+        run: "clojure -M:test"
