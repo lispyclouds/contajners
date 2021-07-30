@@ -22,7 +22,10 @@
              (m/->category "/containers/json" #{"nope"}))))
   (t/testing "categorize operation with namespace"
     (t/is (= :libpod/containers
-             (m/->category "/libpod/containers/json" #{"/libpod"})))))
+             (m/->category "/libpod/containers/json" #{"/libpod"}))))
+  (t/testing "categorize operation with a nested namespace"
+    (t/is (= :libpod.deeper.api/containers
+             (m/->category "/libpod/deeper/api/containers/json" #{"/libpod/deeper/api"})))))
 
 (t/deftest test->params
   (t/testing "param parsing"

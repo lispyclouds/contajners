@@ -53,6 +53,10 @@
   namespaces: #{\"/libpod\"}
   category: :libpod/containers
 
+  path: /libpod/deeper/api/containers/json
+  namespaces: #{\"/libpod/deeper/api\"}
+  category: :libpod.deeper.api/containers
+
   The category is the prefix of the path being passed. eg /containers, /images
   The set of namespaces, if passed, determines if the category is to be namespaced. eg /libpod/containers and /containers
   The namespace is useful to distinguish similarly named ops in APIs supporting compatibility with other engines."
