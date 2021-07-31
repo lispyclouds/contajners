@@ -13,13 +13,13 @@ jobs:
       - name: "Prepare Java"
         uses: "actions/setup-java@v2"
         with:
-          distribution: 'adopt'
-          java-version: '16'
+          distribution: "adopt"
+          java-version: "16"
 
-      - name: "Prepare tools-deps"
+      - name: "Prepare Clojure CLI"
         uses: "DeLaGuardo/setup-clojure@master"
         with:
-          cli: '1.10.3.933'
+          cli: "latest"
 
       - name: "Apply Cache"
         uses: "actions/cache@v2"
