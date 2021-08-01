@@ -48,7 +48,7 @@
                       (.setParameters [param])
                       (.setOperationId "TestOp"))]
       (t/is (= {:TestOp {:summary "this is a test op"
-                         :method  :GET
+                         :method  :get
                          :path    "/test/path"
                          :params  [{:name     "id"
                                     :in       :path
@@ -68,7 +68,7 @@
           path-item (doto (PathItem.)
                       (.setGet operation))]
       (t/is (= [{:containers {:TestOp {:summary "this is a test op"
-                                       :method  :GET
+                                       :method  :get
                                        :path    "/containers/json"
                                        :params  [{:name     "id"
                                                   :in       :path

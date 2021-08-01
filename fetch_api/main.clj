@@ -94,6 +94,7 @@
   {(keyword (.getOperationId operation)) {:summary (.getSummary operation)
                                           :method  (-> method
                                                        str
+                                                       s/lower-case
                                                        keyword)
                                           :path    path
                                           :params  (map ->params (.getParameters operation))}})
