@@ -11,7 +11,7 @@
 
 (def sources
   {:docker {:url      "https://docs.docker.com/engine/api/%s.yaml"
-            :doc-url  "https://docs.podman.io/en/%s/_static/api.html#operation/%s"
+            :doc-url  "https://docs.docker.com/engine/api/%s/#operation/%s"
             :versions ["v1.25"
                        "v1.26"
                        "v1.27"
@@ -30,7 +30,7 @@
                        "v1.40"
                        "v1.41"]}
    :podman {:url        "https://storage.googleapis.com/libpod-master-releases/swagger-%s.yaml"
-            :doc-url    "https://docs.docker.com/engine/api/%s/#operation/%s"
+            :doc-url    "https://docs.podman.io/en/%s/_static/api.html#operation/%s"
             :namespaces #{"/libpod"}
             :versions   ["v3.1.0"
                          "v3.1.1"
