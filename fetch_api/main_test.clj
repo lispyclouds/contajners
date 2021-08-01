@@ -5,7 +5,7 @@
   (:import
     [io.swagger.v3.oas.models Operation PathItem]
     [io.swagger.v3.oas.models.media StringSchema]
-    [io.swagger.v3.oas.models.parameters PathParameter QueryParameter]))
+    [io.swagger.v3.oas.models.parameters PathParameter QueryParameter RequestBody]))
 
 (t/deftest test-find-first
   (t/testing "finds the first matching pred"
@@ -32,10 +32,8 @@
     (let [param (doto (QueryParameter.)
                   (.setName "id")
                   (.setSchema (StringSchema.)))]
-      (t/is (= {:name     "id"
-                :in       :query
-                :required false
-                :schema   "string"}
+      (t/is (= {:name "id"
+                :in   :query}
                (m/->params param))))))
 
 (t/deftest test->operation
@@ -46,14 +44,14 @@
           operation (doto (Operation.)
                       (.setSummary "this is a test op")
                       (.setParameters [param])
-                      (.setOperationId "TestOp"))]
-      (t/is (= {:TestOp {:summary "this is a test op"
-                         :method  :get
-                         :path    "/test/path"
-                         :params  [{:name     "id"
-                                    :in       :path
-                                    :required true
-                                    :schema   "string"}]}}
+                      (.setOperationId "TestOp")
+                      (.setRequestBody (RequestBody.)))]
+      (t/is (= {:TestOp {:summary      "this is a test op"
+                         :method       :get
+                         :path         "/test/path"
+                         :params       [{:name "id"
+                                         :in   :path}]
+                         :request-body true}}
                (m/->operation "/test/path" "GET" operation))))))
 
 (t/deftest test->operations
@@ -70,8 +68,6 @@
       (t/is (= [{:containers {:TestOp {:summary "this is a test op"
                                        :method  :get
                                        :path    "/containers/json"
-                                       :params  [{:name     "id"
-                                                  :in       :path
-                                                  :required true
-                                                  :schema   "string"}]}}}]
+                                       :params  [{:name "id"
+                                                  :in   :path}]}}}]
                (m/->operations nil "/containers/json" path-item))))))
