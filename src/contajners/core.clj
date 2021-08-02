@@ -43,7 +43,7 @@
                          (name op)))))
 
 (defn invoke
-  [{:keys [version conn api]} {:keys [op params as throw-exceptions throw-entire-message]}]
+  [{:keys [version conn api]} {:keys [op params data as throw-exceptions throw-entire-message]}]
   (let [operation      (op api)
         request-params (reduce (partial impl/gather-params params)
                                {}
@@ -56,7 +56,7 @@
                                                    (as-> path (str "/" version path)))
                         :headers               (:headers request-params)
                         :query-params          (:query request-params)
-                        :body                  (:body params)
+                        :body                  data
                         :as                    (or as :string)
                         :throw-exceptions      throw-exceptions
                         :throw-entire-message? throw-entire-message}
@@ -99,4 +99,25 @@
 
   (invoke d-client
           {:op     :ContainerList
-           :params {:all true}}))
+           :params {:all true}})
+
+  (def d-images
+    (client {:engine   :docker
+             :version  "v1.41"
+             :category :images
+             :conn     {:uri "unix:///var/run/docker.sock"}}))
+
+  (ops d-images)
+
+  (doc d-images :ImageCreate)
+
+  (invoke d-images
+          {:op     :ImageCreate
+           :params {:fromImage "busybox:musl"}})
+
+  (invoke d-client
+          {:op                   :ContainerCreate
+           :params               {:name "conny"}
+           :data                 {:Image "busybox:musl"}
+           :throw-exceptions     true
+           :throw-entire-message true}))
