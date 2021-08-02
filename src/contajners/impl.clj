@@ -54,7 +54,17 @@
                         (str value))
              (dissoc value-map param)))))
 
+(defn try-json-parse
+  [value]
+  (try
+    (json/read-str value :key-fn keyword)
+    (catch Exception _ value)))
+
 (comment
+  (try-json-parse "yesnt")
+
+  (try-json-parse "[1, 2, 3]")
+
   (load-api :podman "v3.2.3")
 
   (def client (http/client "tcp://localhost:8080"))

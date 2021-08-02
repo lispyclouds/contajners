@@ -1,6 +1,5 @@
 (ns contajners.core
   (:require
-    [clojure.data.json :as json]
     [unixsocket-http.core :as http]
     [contajners.impl :as impl]))
 
@@ -60,12 +59,14 @@
                         :body                  (:body params)
                         :as                    (or as :string)
                         :throw-exceptions      throw-exceptions
-                        :throw-entire-message? throw-entire-message}]
-    (-> request
-        (impl/maybe-serialize-body)
-        (http/request)
-        :body
-        (json/read-str :key-fn keyword))))
+                        :throw-entire-message? throw-entire-message}
+        response       (-> request
+                           (impl/maybe-serialize-body)
+                           (http/request)
+                           :body)]
+    (case as
+      (:socket :stream) response
+      (impl/try-json-parse response))))
 
 (comment
   (categories :podman "v3.2.3")
