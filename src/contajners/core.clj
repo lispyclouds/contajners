@@ -12,11 +12,21 @@
 
 (defn client
   [{:keys [engine category conn version]}]
-  (let [api (impl/load-api engine version)]
+  (let [api                    (impl/load-api engine version)
+        {:keys [uri
+                connect-timeout
+                read-timeout
+                write-timeout
+                call-timeout]} conn]
     {:api     (-> api
                   category
                   (merge (select-keys api [:contajners/doc-url])))
-     :conn    (http/client (:uri conn) {:mode :recreate})
+     :conn    (http/client uri
+                           {:connect-timeout-ms connect-timeout
+                            :read-timeout-ms    read-timeout
+                            :write-timeout-ms   write-timeout
+                            :call-timeout-ms    call-timeout
+                            :mode               :recreate})
      :version version}))
 
 (defn ops
