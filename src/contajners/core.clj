@@ -1,18 +1,18 @@
 (ns contajners.core
   (:require
     [clojure.data.json :as json]
-    [contajners.requests :as req]
-    [unixsocket-http.core :as http]))
+    [unixsocket-http.core :as http]
+    [contajners.impl :as impl]))
 
 (defn categories
   [engine version]
-  (->> (req/load-api engine version)
+  (->> (impl/load-api engine version)
        (keys)
        (remove #(= "contajners" (namespace %)))))
 
 (defn client
   [{:keys [engine category conn version]}]
-  (let [api (req/load-api engine version)]
+  (let [api (impl/load-api engine version)]
     {:api     (-> api
                   category
                   (merge (select-keys api [:contajners/doc-url])))
@@ -36,24 +36,23 @@
 (defn invoke
   [{:keys [version conn api]} {:keys [op params as throw-exceptions throw-entire-message]}]
   (let [operation      (op api)
-        request-params (reduce (partial req/gather-params params)
+        request-params (reduce (partial impl/gather-params params)
                                {}
                                (:params operation))
-        request {:client           conn
-                 :method           (:method operation)
-                 :url              (str "/"
-                                        version
-                                        (-> operation
-                                            :path
-                                            (req/interpolate-path (:path request-params))))
-                 :headers          (:headers request-params)
-                 :query-params     (:query request-params)
-                 :body             (:body params)
-                 :as               (or as :string)
-                 :throw-exceptions throw-exceptions
-                 :throw-entire-message? throw-entire-message}]
+        request        {:client                conn
+                        :method                (:method operation)
+                        :url                   (-> operation
+                                                   :path
+                                                   (impl/interpolate-path (:path request-params))
+                                                   (as-> path (str "/" version path)))
+                        :headers               (:headers request-params)
+                        :query-params          (:query request-params)
+                        :body                  (:body params)
+                        :as                    (or as :string)
+                        :throw-exceptions      throw-exceptions
+                        :throw-entire-message? throw-entire-message}]
     (-> request
-        (req/maybe-serialize-body)
+        (impl/maybe-serialize-body)
         (http/request)
         :body
         (json/read-str :key-fn keyword))))
