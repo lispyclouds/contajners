@@ -3,6 +3,11 @@
     [clojure.test :as t]
     [contajners.impl :as impl]))
 
+(t/deftest meta-cleanup
+  (t/testing "remove internal namespace"
+    (t/is (= [:foo]
+             (impl/remove-internal-meta [:contajners/foo :foo])))))
+
 (t/deftest param-gathering
   (t/testing "gathering params as header query and path"
     (t/is (= {:header {:a 1 :b 2}

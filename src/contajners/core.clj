@@ -5,7 +5,9 @@
 
 (defn categories
   [engine version]
-  (keys (impl/load-api engine version)))
+  (->> (impl/load-api engine version)
+       (keys)
+       (impl/remove-internal-meta)))
 
 (defn client
   [{:keys [engine category conn version]}]
@@ -30,7 +32,7 @@
   [{:keys [api]}]
   (->> api
        (keys)
-       (remove #(= "contajners" (namespace %)))))
+       (impl/remove-internal-meta)))
 
 (defn doc
   [{:keys [version api]} op]
@@ -76,7 +78,7 @@
   (def client
     (client {:engine   :podman
              :version  "v3.2.3"
-             :category :libpod/containers
+             :category :libpod/images
              :conn     {:uri "http://localhost:8080"}}))
 
   (def d-client

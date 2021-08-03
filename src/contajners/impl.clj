@@ -9,6 +9,10 @@
     [java.io PushbackReader]
     [java.util.regex Pattern]))
 
+(defn remove-internal-meta
+  [data-seq]
+  (remove #(= "contajners" (namespace %)) data-seq))
+
 (defn load-api
   [engine version]
   (if-let [config (io/resource
@@ -61,6 +65,8 @@
     (catch Exception _ value)))
 
 (comment
+  (remove-internal-meta [:contajners/foo :foo])
+
   (try-json-parse "yesnt")
 
   (try-json-parse "[1, 2, 3]")
