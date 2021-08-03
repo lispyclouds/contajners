@@ -5,9 +5,7 @@
 
 (defn categories
   [engine version]
-  (->> (impl/load-api engine version)
-       (keys)
-       (remove #(= "contajners" (namespace %)))))
+  (keys (impl/load-api engine version)))
 
 (defn client
   [{:keys [engine category conn version]}]
@@ -30,7 +28,9 @@
 
 (defn ops
   [{:keys [api]}]
-  (keys api))
+  (->> api
+       (keys)
+       (remove #(= "contajners" (namespace %)))))
 
 (defn doc
   [{:keys [version api]} op]
