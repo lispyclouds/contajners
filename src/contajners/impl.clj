@@ -15,10 +15,12 @@
     [okhttp3.tls HandshakeCertificates$Builder HeldCertificate]))
 
 (defn remove-internal-meta
+  "Removes keywords namespaced with :contajners. They are for internal use."
   [data-seq]
   (remove #(= "contajners" (namespace %)) data-seq))
 
 (defn load-api
+  "Loads the API EDN file from resources."
   [engine version]
   (if-let [config (io/resource
                     (format "contajners/%s/%s.edn"
@@ -31,6 +33,11 @@
     (throw (IllegalArgumentException. "Cannot load api, the engine, version combo may not be supported."))))
 
 (defn gather-params
+  "Reducer fn categorizing the params as :header, :query or :path.
+
+  supplied-params: map of params the user has passed when invoking.
+  request-params: accumulator for all the params to be actually sent.
+  each param in the spec is passed as the last arg and categorized by `in` if it is supplied."
   [supplied-params request-params {:keys [name in]}]
   (let [param (keyword name)]
     (if-not (contains? supplied-params param)
@@ -64,18 +71,23 @@
              (dissoc value-map param)))))
 
 (defn try-json-parse
+  "Attempts to parse `value` as a JSON string. no-op if its not a valid JSON string."
   [value]
   (try
     (json/read-str value :key-fn keyword)
     (catch Exception _ value)))
 
 (defn read-cert
+  "Loads a PEM file from a given path and returns the certificate from it."
   [path]
   (-> path
       (pem/read)
       (:certificate)))
 
 (defn make-builder-fn
+  "Creates a builder fn to load the certs for mTLS.
+
+  This is expected by unixsocket-http underlying mechanism."
   [{:keys [ca cert key]}]
   (let [{:keys [public-key private-key]} (pem/read key)
         key-pair                         (KeyPair. public-key private-key)
@@ -90,6 +102,7 @@
                          (.trustManager handshake-certs)))))
 
 (defn request
+  "Internal fn to perform the request."
   [{:keys [client method path headers query-params body as throw-exceptions throw-entire-message]}]
   (-> {:client                client
        :method                method

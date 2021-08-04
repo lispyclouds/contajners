@@ -4,12 +4,26 @@
     [contajners.impl :as impl]))
 
 (defn categories
+  "Returns the available categories for an engine at a specified verison.
+
+  Categories are the kind of operations the engine can do.
+
+  eg. :docker and v1.41
+      :podman and v3.2.3"
   [engine version]
   (->> (impl/load-api engine version)
        (keys)
        (impl/remove-internal-meta)))
 
 (defn client
+  "Creates a client scoped to an engine, category, connection settings and API version.
+
+  Connection settings:
+  uri: The full URI with the protocol for the connection to the engine.
+  read-timeout: Read timeout in ms.
+  write-timeout: Write timeout in ms.
+  call-timeout: Total round trip timeout in ms.
+  mtls: A map having the paths to the CA, key and cert to perform Mutual TLS with the engine."
   [{:keys [engine category conn version]}]
   (let [api                    (impl/load-api engine version)
         {:keys [uri
@@ -33,12 +47,14 @@
      :version version}))
 
 (defn ops
+  "Returns the supported operations for a client."
   [{:keys [api]}]
   (->> api
        (keys)
        (impl/remove-internal-meta)))
 
 (defn doc
+  "Returns the summary and doc URL of the operation in the client."
   [{:keys [version api]} op]
   (some-> api
           op
@@ -49,6 +65,15 @@
                          (name op)))))
 
 (defn invoke
+  "Performs the operation with the specified client and a map of options.
+
+  Options map:
+  op: The operation to invoke on the engine. Required.
+  params: The params needed for the operation. Default: {}.
+  data: The payload needed to be sent to the op. Maps will be JSON serialized. Corresponds to the Request Body in docs. Default: {}.
+  as: The return type of the response. :data, :stream, :socket. Default: :data.
+  throw-exceptions: Throws exceptions when status is >= 400 for API calls. Default: false.
+  throw-entire-message: Includes the full exception as a string. Default: false."
   [{:keys [version conn api]} {:keys [op params data as throw-exceptions throw-entire-message]}]
   (let [operation      (op api)
         request-params (reduce (partial impl/gather-params params)
