@@ -4,10 +4,15 @@
     [clojure.java.io :as io]
     [clojure.data.json :as json]
     [clojure.string :as s]
-    [unixsocket-http.core :as http])
+    [unixsocket-http.core :as http]
+    [pem-reader.core :as pem])
   (:import
     [java.io PushbackReader]
-    [java.util.regex Pattern]))
+    [java.util.regex Pattern]
+    [java.security KeyPair]
+    [java.security.cert X509Certificate]
+    [okhttp3 OkHttpClient$Builder]
+    [okhttp3.tls HandshakeCertificates$Builder HeldCertificate]))
 
 (defn remove-internal-meta
   [data-seq]
@@ -64,7 +69,29 @@
     (json/read-str value :key-fn keyword)
     (catch Exception _ value)))
 
+(defn read-cert
+  [path]
+  (-> path
+      (pem/read)
+      (:certificate)))
+
+(defn make-builder-fn
+  [{:keys [ca cert key]}]
+  (let [{:keys [public-key private-key]} (pem/read key)
+        key-pair                         (KeyPair. public-key private-key)
+        held-cert                        (HeldCertificate. key-pair (read-cert cert))
+        handshake-certs                  (-> (HandshakeCertificates$Builder.)
+                                             (.addTrustedCertificate (read-cert ca))
+                                             (.heldCertificate held-cert (into-array X509Certificate []))
+                                             (.build))]
+    (fn [^OkHttpClient$Builder builder]
+      (.sslSocketFactory builder
+                         (.sslSocketFactory handshake-certs)
+                         (.trustManager handshake-certs)))))
+
 (comment
+  (set! *warn-on-reflection* true)
+
   (remove-internal-meta [:contajners/foo :foo])
 
   (try-json-parse "yesnt")

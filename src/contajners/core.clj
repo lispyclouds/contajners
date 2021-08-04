@@ -16,7 +16,8 @@
                 connect-timeout
                 read-timeout
                 write-timeout
-                call-timeout]} conn]
+                call-timeout
+                mtls]}         conn]
     {:api     (-> api
                   category
                   (merge (select-keys api [:contajners/doc-url])))
@@ -25,7 +26,10 @@
                             :read-timeout-ms    read-timeout
                             :write-timeout-ms   write-timeout
                             :call-timeout-ms    call-timeout
-                            :mode               :recreate})
+                            :mode               :recreate
+                            :builder-fn         (if mtls
+                                                  (impl/make-builder-fn mtls)
+                                                  identity)})
      :version version}))
 
 (defn ops
@@ -65,7 +69,7 @@
         response       (-> request
                            (impl/maybe-serialize-body)
                            (http/request)
-                           :body)]
+                           (:body))]
     (case as
       (:socket :stream) response
       (impl/try-json-parse response))))

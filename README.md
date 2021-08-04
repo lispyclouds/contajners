@@ -162,7 +162,7 @@ The operation map is of the following structure:
 {:op     :NameOfOp
  :params {:param-1 "value1"
           :param-2 true}
- :data  {map or stream to be passed as a request body}}
+ :data   {map or stream or raw data to be passed. Corresponds to the Request Body in the docs}}
 ```
 Takes an optional key `as`. Defaults to `:raw`. Returns an InputStream if passed as `:stream`, the raw underlying network socket if passed as `:socket`. `:stream` is useful for streaming responses like logs, events etc, which run till the container is up. `:socket` is useful for events when bidirectional streams are returned by docker in operations like `:ContainerAttach`.
 ```clojure
