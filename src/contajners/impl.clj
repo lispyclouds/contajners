@@ -89,6 +89,21 @@
                          (.sslSocketFactory handshake-certs)
                          (.trustManager handshake-certs)))))
 
+(defn request
+  [{:keys [client method path headers query-params body as throw-exceptions throw-entire-message]}]
+  (-> {:client                client
+       :method                method
+       :url                   path
+       :headers               headers
+       :query-params          query-params
+       :body                  body
+       :as                    (or as :string)
+       :throw-exceptions      throw-exceptions
+       :throw-entire-message? throw-entire-message}
+      (maybe-serialize-body)
+      (http/request)
+      (:body)))
+
 (comment
   (set! *warn-on-reflection* true)
 
@@ -116,4 +131,8 @@
 
   (maybe-serialize-body {:body 42})
 
-  (interpolate-path "/a/{w}/b/{x}/{y}" {:x 41 :y 42 :z 43}))
+  (interpolate-path "/a/{w}/b/{x}/{y}" {:x 41 :y 42 :z 43})
+
+  (request {:client (http/client "http://localhost:8080")
+            :method :get
+            :path   "/v3.2.3/libpod/containers/json"}))

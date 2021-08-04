@@ -56,20 +56,17 @@
                                (:params operation))
         request        {:client                conn
                         :method                (:method operation)
-                        :url                   (-> operation
+                        :path                  (-> operation
                                                    :path
                                                    (impl/interpolate-path (:path request-params))
                                                    (as-> path (str "/" version path)))
                         :headers               (:headers request-params)
                         :query-params          (:query request-params)
                         :body                  data
-                        :as                    (or as :string)
+                        :as                    as
                         :throw-exceptions      throw-exceptions
                         :throw-entire-message? throw-entire-message}
-        response       (-> request
-                           (impl/maybe-serialize-body)
-                           (http/request)
-                           (:body))]
+        response       (impl/request request)]
     (case as
       (:socket :stream) response
       (impl/try-json-parse response))))
@@ -100,7 +97,7 @@
   (doc d-client :ContainerCreate)
 
   (invoke client
-          {:op     :ContainerListLibpod
+          {:op     :ImageListLibpod
            :params {:all true}})
 
   (invoke d-client
