@@ -13,5 +13,3 @@ pom.xml.asc
 .nrepl-port
 .cpcache/
 .lsp/
-resources/contajners/docker/
-resources/contajners/podman/
