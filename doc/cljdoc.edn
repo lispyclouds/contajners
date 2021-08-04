@@ -1,2 +1,3 @@
 {:cljdoc.doc/tree [["Readme" {:file "README.md"}]
-                   ["Getting Started" {:file "doc/000-getting-started.md"}]]}
+                   ["Getting Started" {:file "doc/000-getting-started.md"}]
+                   ["API" {:file "doc/001-api.md"}]]}
