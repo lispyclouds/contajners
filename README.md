@@ -17,6 +17,8 @@ Alpha.
 - [Podman](https://podman.io/)
 
 ### [Getting started](/doc/000-getting-started.md)
+### [API](/doc/001-api.md)
+### [General Guidelines](/doc/002-general-guidelines.md)
 
 ## License
 

@@ -36,6 +36,8 @@ Currently the following engines are supported, make sure at least one of them ar
 - [Docker](https://www.docker.com/)
 - [Podman](https://podman.io/)
 
+Checkout the [API](/doc/001-api.md) for more details.
+
 ### An example REPL session
 
 If using docker, the service is assumed to be running on `unix:///var/run/docker.sock`
