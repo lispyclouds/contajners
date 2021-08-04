@@ -54,18 +54,18 @@
         request-params (reduce (partial impl/gather-params params)
                                {}
                                (:params operation))
-        request        {:client                conn
-                        :method                (:method operation)
-                        :path                  (-> operation
-                                                   :path
-                                                   (impl/interpolate-path (:path request-params))
-                                                   (as-> path (str "/" version path)))
-                        :headers               (:headers request-params)
-                        :query-params          (:query request-params)
-                        :body                  data
-                        :as                    as
-                        :throw-exceptions      throw-exceptions
-                        :throw-entire-message? throw-entire-message}
+        request        {:client               conn
+                        :method               (:method operation)
+                        :path                 (-> operation
+                                                  :path
+                                                  (impl/interpolate-path (:path request-params))
+                                                  (as-> path (str "/" version path)))
+                        :headers              (:headers request-params)
+                        :query-params         (:query request-params)
+                        :body                 data
+                        :as                   as
+                        :throw-exceptions     throw-exceptions
+                        :throw-entire-message throw-entire-message}
         response       (impl/request request)]
     (case as
       (:socket :stream) response
