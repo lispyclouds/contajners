@@ -6,9 +6,9 @@
 
 An idiomatic, data-driven, REPL friendly Clojure client for [OCI](https://opencontainers.org/) complaint container engines inspired from Cognitect's AWS [client](https://github.com/cognitect-labs/aws-api).
 
-**The README here is for the current main branch and _may not reflect the released version_.**
+#### This is an improvement over the [clj-docker-client](https://github.com/into-docker/clj-docker-client) on various aspects and aims to supersede it.
 
-**Please raise issues here for any new feature requests!**
+**The README here is for the current main branch and _may not reflect the released version_.**
 
 ### Status
 Alpha.
