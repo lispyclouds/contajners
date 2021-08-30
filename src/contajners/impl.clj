@@ -14,6 +14,10 @@
     [okhttp3 OkHttpClient$Builder]
     [okhttp3.tls HandshakeCertificates$Builder HeldCertificate]))
 
+(defn bail-out
+  [^String message]
+  (throw (IllegalArgumentException. message)))
+
 (defn remove-internal-meta
   "Removes keywords namespaced with :contajners. They are for internal use."
   [data-seq]
@@ -30,7 +34,7 @@
         (io/reader)
         (PushbackReader.)
         (edn/read))
-    (throw (IllegalArgumentException. "Cannot load api, the engine, version combo may not be supported."))))
+    (bail-out "Cannot load api, the engine, version combo may not be supported.")))
 
 (defn gather-params
   "Reducer fn categorizing the params as :header, :query or :path.

@@ -25,26 +25,28 @@
   call-timeout: Total round trip timeout in ms.
   mtls: A map having the paths to the CA, key and cert to perform Mutual TLS with the engine."
   [{:keys [engine category conn version]}]
-  (let [api                    (impl/load-api engine version)
+  (let [api (impl/load-api engine version)
         {:keys [uri
                 connect-timeout
                 read-timeout
                 write-timeout
                 call-timeout
-                mtls]}         conn]
-    {:api     (-> api
-                  category
-                  (merge (select-keys api [:contajners/doc-url])))
-     :conn    (http/client uri
-                           {:connect-timeout-ms connect-timeout
-                            :read-timeout-ms    read-timeout
-                            :write-timeout-ms   write-timeout
-                            :call-timeout-ms    call-timeout
-                            :mode               :recreate
-                            :builder-fn         (if mtls
-                                                  (impl/make-builder-fn mtls)
-                                                  identity)})
-     :version version}))
+                mtls]}
+        conn]
+    {:category category
+     :api      (-> api
+                   category
+                   (merge (select-keys api [:contajners/doc-url])))
+     :conn     (http/client uri
+                            {:connect-timeout-ms connect-timeout
+                             :read-timeout-ms    read-timeout
+                             :write-timeout-ms   write-timeout
+                             :call-timeout-ms    call-timeout
+                             :mode               :recreate
+                             :builder-fn         (if mtls
+                                                   (impl/make-builder-fn mtls)
+                                                   identity)})
+     :version  version}))
 
 (defn ops
   "Returns the supported operations for a client."
@@ -74,27 +76,30 @@
   as: The return type of the response. :data, :stream, :socket. Default: :data.
   throw-exceptions: Throws exceptions when status is >= 400 for API calls. Default: false.
   throw-entire-message: Includes the full exception as a string. Default: false."
-  [{:keys [version conn api]} {:keys [op params data as throw-exceptions throw-entire-message]}]
-  (let [operation      (op api)
-        request-params (reduce (partial impl/gather-params params)
-                               {}
-                               (:params operation))
-        request        {:client               conn
-                        :method               (:method operation)
-                        :path                 (-> operation
-                                                  :path
-                                                  (impl/interpolate-path (:path request-params))
-                                                  (as-> path (str "/" version path)))
-                        :headers              (:headers request-params)
-                        :query-params         (:query request-params)
-                        :body                 data
-                        :as                   as
-                        :throw-exceptions     throw-exceptions
-                        :throw-entire-message throw-entire-message}
-        response       (impl/request request)]
-    (case as
-      (:socket :stream) response
-      (impl/try-json-parse response))))
+  [{:keys [version conn api category]} {:keys [op params data as throw-exceptions throw-entire-message]}]
+  (if-let [operation (op api)]
+    (let [request-params (reduce (partial impl/gather-params params)
+                                 {}
+                                 (:params operation))
+          request        {:client               conn
+                          :method               (:method operation)
+                          :path                 (-> operation
+                                                    :path
+                                                    (impl/interpolate-path (:path request-params))
+                                                    (as-> path (str "/" version path)))
+                          :headers              (:headers request-params)
+                          :query-params         (:query request-params)
+                          :body                 data
+                          :as                   as
+                          :throw-exceptions     throw-exceptions
+                          :throw-entire-message throw-entire-message}
+          response       (impl/request request)]
+      (case as
+        (:socket :stream) response
+        (impl/try-json-parse response)))
+    (impl/bail-out (format "Invalid operation %s for category %s"
+                           (name op)
+                           (name category)))))
 
 (comment
   (categories :podman "v3.2.3")
