@@ -7,4 +7,4 @@
   :dependencies [[org.clojure/data.json "2.4.0"]
                  [unixsocket-http/unixsocket-http "1.0.10"]
                  [com.squareup.okhttp3/okhttp-tls "4.9.2"]
-                 [into-docker/pem-reader "1.0.1"]])
+                 [into-docker/pem-reader "1.0.2"]])
