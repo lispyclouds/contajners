@@ -1,6 +1,7 @@
 (ns contajners.core
   (:require
-    [unixsocket-http.core :as http]
+    #?(:bb  [contajners.sci-runtime  :as rt]
+       :clj [contajners.jvm-runtime  :as rt])
     [contajners.impl :as impl]))
 
 (defn categories
@@ -37,15 +38,13 @@
      :api      (-> api
                    category
                    (merge (select-keys api [:contajners/doc-url])))
-     :conn     (http/client uri
-                            {:connect-timeout-ms connect-timeout
-                             :read-timeout-ms    read-timeout
-                             :write-timeout-ms   write-timeout
-                             :call-timeout-ms    call-timeout
-                             :mode               :recreate
-                             :builder-fn         (if mtls
-                                                   (impl/make-builder-fn mtls)
-                                                   identity)})
+     :conn     (rt/http-client uri
+                               {:connect-timeout-ms connect-timeout
+                                :read-timeout-ms    read-timeout
+                                :write-timeout-ms   write-timeout
+                                :call-timeout-ms    call-timeout
+                                :mode               :recreate
+                                :mtls               mtls})
      :version  version}))
 
 (defn ops
