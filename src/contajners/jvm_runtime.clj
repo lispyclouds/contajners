@@ -33,7 +33,7 @@
                          (.trustManager handshake-certs)))))
 
 (defn http-client [uri opts]
-  (http/client uri (assoc opts :builder-fn (if (:mtls opts)
+  (http/client uri (assoc opts :builder-fn (if-let [mtls (:mtls opts)]
                                              (make-builder-fn mtls)
                                              identity))))
 
