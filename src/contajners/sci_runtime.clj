@@ -17,5 +17,3 @@
 
 (defn http-get [client url]
   (throw (RuntimeException. "Curl http get for bb not implemented yet")))
-
-

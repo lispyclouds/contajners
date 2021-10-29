@@ -39,5 +39,4 @@
 
 (def http-request http/request)
 
-
-
+(def http-get http/get)
