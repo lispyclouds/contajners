@@ -18,11 +18,12 @@
   (let [{:keys [client method url headers query-params body]} req
         {:keys [uri connect-timeout read-timeout write-timeout call-timeout mtls]} client
         url (str "http://localhost" url)]
-    ((fn [o] (do (println o) o)) (curl/request {:debug true
+    ((fn [o] (do (println o) (println req) o)) (curl/request {:debug true
                                                 :url url
                                                 :raw-args ["--unix-socket" "/var/run/docker.sock"]
                                                 :method method
                                                 :query-params query-params
+                                                :headers headers
                                                 :body body}))))
 
 (defn http-get [client url]
