@@ -13,7 +13,16 @@
    :call-timeout call-timeout})
 
 (defn http-request [var & more]
-  (throw (RuntimeException. "Curl request for bb not implemented yet")))
+  (let [{:keys [url client]} var
+        {:keys [uri]} client
+        url (str "http://localhost" url)]
+    (println (:body (curl/request {:debug true
+                                   :url url
+                                   :raw-args ["--unix-socket" uri]})))))
 
 (defn http-get [client url]
-  (throw (RuntimeException. "Curl http get for bb not implemented yet")))
+  (let [{:keys [conn]} client
+        {:keys [uri]} conn
+        url (str "http://localhost" url)]
+    (:body (curl/get url {:url url
+                          :raw-args ["--unix-socket" uri]}))))
