@@ -16,15 +16,16 @@
 
 (defn http-request [req]
   (let [{:keys [client method url headers query-params body]} req
-        {:keys [uri connect-timeout read-timeout write-timeout call-timeout mtls]} client
+        {:keys [uri connect-timeout read-timeout write-timeout call-timeout mtls debug]} client
         url (str "http://localhost" url)]
-    ((fn [o] (do (println o) (println req) o)) (curl/request {:debug true
-                                                :url url
-                                                :raw-args ["--unix-socket" "/var/run/docker.sock"]
-                                                :method method
-                                                :query-params query-params
-                                                :headers headers
-                                                :body body}))))
+    ((fn [o] (do (println o) (println req) o))
+     (curl/request {:debug debug
+                    :url url
+                    :raw-args ["--unix-socket" "/var/run/docker.sock"]
+                    :method method
+                    :query-params query-params
+                    :headers headers
+                    :body body}))))
 
 (defn http-get [client url]
   (let [{:keys [conn]} client

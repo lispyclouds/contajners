@@ -19,8 +19,14 @@
                                  images-docker (c/client {:engine   :docker
                                                           :category :images
                                                           :version  "v1.41"
-                                                          :conn     {:uri "/var/run/docker.sock"}})]
+                                                          :conn     {:uri "/var/run/docker.sock"}})
+                                 containers (c/client {:engine   :docker
+                                                       :category :containers
+                                                       :version  "v1.41"
+                                                       :conn     {:uri "/var/run/docker.sock"}})]
                             ;;  (println categories)
                             ;;  (println (c/ops images-docker))
+                             (println (c/ops containers))
                             ;;  (println (c/doc images-docker :ImageCreate))
-                             (c/invoke images-docker {:op :ImageList}))}}}
+                            ;;  (println (c/invoke images-docker {:op :ImageList :as :edn}))
+                             (println (c/invoke containers {:op :ContainerList :params {:all true}})))}}}
