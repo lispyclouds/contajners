@@ -37,6 +37,6 @@
                                              (make-builder-fn mtls)
                                              identity))))
 
-(def http-request http/request)
+(def request http/request)
 
 (def http-get http/get)

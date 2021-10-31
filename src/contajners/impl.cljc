@@ -90,7 +90,7 @@
        :throw-exceptions      throw-exceptions
        :throw-entire-message? throw-entire-message}
       (maybe-serialize-body)
-      (rt/http-request)
+      (rt/request)
       (:body)))
 
 (comment

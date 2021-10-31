@@ -17,7 +17,7 @@
    :call-timeout call-timeout
    :mtls mtls})
 
-(defn unix-socket?
+(defn- unix-socket?
   [^String uri]
   (= "unix" (.getScheme (URI. uri))))
 
@@ -32,7 +32,7 @@
        (assoc req :url)
        (#(dissoc % :uri))))
 
-(defn http-request [req]
+(defn request [req]
   (let [{:keys [client method url headers query-params body]} req
         {:keys [uri connect-timeout read-timeout write-timeout call-timeout mtls debug]} client]
     (->> req
@@ -48,11 +48,11 @@
          )))
 
 (defn http-get [client url]
-  (http-request {:client client
+  (request {:client client
                  :url url
                  :method :get}))
 (comment
-  (http-request
+  (request
    {:method :get,
     :as :string,
     :client {:uri "unix:///var/run/docker.sock",
