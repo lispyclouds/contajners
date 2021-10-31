@@ -47,10 +47,6 @@
          ((fn [o] (do (println o) (println req) o))) ;;TODO: for debugging purpose, remove later
          )))
 
-(defn http-get [client url]
-  (request {:client client
-                 :url url
-                 :method :get}))
 (comment
   (request
    {:method :get,

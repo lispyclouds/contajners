@@ -38,5 +38,3 @@
                                              identity))))
 
 (def request http/request)
-
-(def http-get http/get)

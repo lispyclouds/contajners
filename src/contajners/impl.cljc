@@ -106,9 +106,9 @@
 
   (def client (rt/http-client "tcp://localhost:8080" {}))
 
-  (rt/http-get client "/v1.40/_ping")
+  (rt/request {:client client :url "/v1.40/_ping" :method :get})
 
-  (rt/http-get client "/containers/json")
+  (rt/request {:client client :url "/containers/json" :method :get})
 
   (reduce (partial gather-params {:a 42 :b 64 :c 44})
           {}
