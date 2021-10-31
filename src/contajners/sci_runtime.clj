@@ -1,6 +1,7 @@
 (ns contajners.sci-runtime
   (:require
-   [babashka.curl :as curl]))
+   [babashka.curl :as curl]
+   [clojure.string :as string]))
 
 (defn http-client [uri {:keys [connect-timeout
                                read-timeout
@@ -14,37 +15,54 @@
    :call-timeout call-timeout
    :mtls mtls})
 
+(defn- strip-start [start str]
+  (if (string/starts-with? str start)
+    (subs str (count start))))
+
+(defn- may-be-unix-socket [{{:keys [uri]} :client}]
+  (if-let [socket-path (strip-start "unix://" uri)]
+    {:raw-args ["--unix-socket" socket-path]
+     :uri "http://localhost"}
+    {:uri uri}))
+
+(defn- add-url [url {:keys [uri] :as req}]
+  (->> (str uri url)
+       (assoc req :url)
+       (#(dissoc % :uri))))
+
 (defn http-request [req]
   (let [{:keys [client method url headers query-params body]} req
-        {:keys [uri connect-timeout read-timeout write-timeout call-timeout mtls debug]} client
-        url (str "http://localhost" url)]
-    ((fn [o] (do (println o) (println req) o))
-     (curl/request {:debug debug
-                    :url url
-                    :raw-args ["--unix-socket" "/var/run/docker.sock"]
-                    :method method
-                    :query-params query-params
-                    :headers headers
-                    :body body}))))
+        {:keys [uri connect-timeout read-timeout write-timeout call-timeout mtls debug]} client]
+    (->> req
+         may-be-unix-socket
+         (add-url url)
+         (merge {:debug debug
+                 :method method
+                 :query-params query-params
+                 :headers headers
+                 :body body})
+         curl/request
+         ((fn [o] (do (println o) (println req) o))) ;;TODO: for debugging purpose, remove later
+         )))
 
 (defn http-get [client url]
-  (let [{:keys [conn]} client
-        {:keys [uri]} conn
-        url (str "http://localhost" url)]
-    (:body (curl/get url {:url url
-                          :raw-args ["--unix-socket" uri]}))))
+  (http-request {:client client
+                 :url url
+                 :method :get}))
 (comment
-  {:method :get,
-   :as :string,
-   :client {:uri "unix:///var/run/docker.sock",
-            :connect-timeout nil,
-            :read-timeout nil,
-            :write-timeout nil,
-            :call-timeout nil},
-   :headers nil,
-   :throw-entire-message? nil,
-   :url "/v1.41/containers/json",
-   :query-params {:all true},
-   :throw-exceptions nil,
-   :body nil}
-  )
+  (http-request
+   {:method :get,
+    :as :string,
+    :client {:uri "unix:///var/run/docker.sock",
+             :connect-timeout nil,
+             :read-timeout nil,
+             :write-timeout nil,
+             :call-timeout nil},
+    :headers nil,
+    :throw-entire-message? nil,
+    :url "/v1.41/containers/json",
+    :query-params {:all true},
+    :throw-exceptions nil,
+    :body nil}
+   )
+)
