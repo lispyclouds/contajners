@@ -1,7 +1,9 @@
 (ns contajners.sci-runtime
   (:require
    [babashka.curl :as curl]
-   [clojure.string :as string]))
+   [clojure.string :as string])
+  (:import
+   [java.net URI]))
 
 (defn http-client [uri {:keys [connect-timeout
                                read-timeout
@@ -15,13 +17,13 @@
    :call-timeout call-timeout
    :mtls mtls})
 
-(defn- strip-start [start str]
-  (if (string/starts-with? str start)
-    (subs str (count start))))
+(defn unix-socket?
+  [^String uri]
+  (= "unix" (.getScheme (URI. uri))))
 
 (defn- may-be-unix-socket [{{:keys [uri]} :client}]
-  (if-let [socket-path (strip-start "unix://" uri)]
-    {:raw-args ["--unix-socket" socket-path]
+  (if (unix-socket? uri)
+    {:raw-args ["--unix-socket" (.getPath (URI. uri))]
      :uri "http://localhost"}
     {:uri uri}))
 
