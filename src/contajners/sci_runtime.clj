@@ -7,14 +7,10 @@
 (defn http-client
   [uri
    {:keys [connect-timeout
-           read-timeout
-           write-timeout
            call-timeout
            mtls]}]
   {:uri             uri
    :connect-timeout connect-timeout
-   :read-timeout    read-timeout
-   :write-timeout   write-timeout
    :call-timeout    call-timeout
    :mtls            mtls})
 
@@ -22,12 +18,29 @@
   [^String uri]
   (= "unix" (.getScheme (URI. uri))))
 
-(defn to-url
-  [{:keys [uri]} path]
-  (if (unix-socket? uri)
-    {:raw-args ["--unix-socket" (.getPath (URI. uri))]
-     :url      (str "http://localhost" path)}
-    {:url (str uri path)}))
+(defn add-curl-opts
+  [{:keys [uri connect-timeout call-timeout]} path]
+  (let [unix     (unix-socket? uri)
+        raw-args (if connect-timeout
+                   ["--connect-timeout"
+                    (-> (/ connect-timeout 1000)
+                        int
+                        str)]
+                   [])
+        raw-args (if call-timeout
+                   (conj raw-args
+                         "--max-timeout"
+                         (-> (/ call-timeout 1000)
+                             int
+                             str))
+                   raw-args)
+        raw-args (if unix
+                   (conj raw-args "--unix-socket" (.getPath (URI. uri)))
+                   raw-args)]
+    {:raw-args raw-args
+     :url      (if unix
+                 (str "http://localhost" path)
+                 (str uri path))}))
 
 (defn request
   "Internal fn to perform the request."
@@ -42,20 +55,18 @@
                        nil
                        as)
        :throw        throw-exceptions}
-      (into (to-url client path))
+      (into (add-curl-opts client path))
       (curl/request)
       (:body)))
 
 (comment
-  (to-url {:uri             "unix:///var/run/docker.sock"
-           :connect-timeout nil
-           :read-timeout    nil
-           :write-timeout   nil
-           :call-timeout    nil}
-          "/v1.41/containers/json")
+  (add-curl-opts {:uri             "unix:///var/run/docker.sock"
+                  :connect-timeout 1000
+                  :call-timeout    2000}
+                 "/v1.41/containers/json")
 
   (request
     {:method       :get
      :client       {:uri "unix:///var/run/docker.sock"}
-     :path          "/v1.41/containers/json"
+     :path         "/v1.41/containers/json"
      :query-params {:all true}}))
