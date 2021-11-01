@@ -1,18 +1,14 @@
 (ns contajners.impl
   (:require
+    #?(:bb [contajners.sci-runtime :as rt]
+       :clj [contajners.jvm-runtime :as rt])
     [clojure.edn :as edn]
     [clojure.java.io :as io]
     [clojure.data.json :as json]
-    [clojure.string :as s]
-    [unixsocket-http.core :as http]
-    [pem-reader.core :as pem])
+    [clojure.string :as s])
   (:import
     [java.io PushbackReader]
-    [java.util.regex Pattern]
-    [java.security KeyPair]
-    [java.security.cert X509Certificate]
-    [okhttp3 OkHttpClient$Builder]
-    [okhttp3.tls HandshakeCertificates$Builder HeldCertificate]))
+    [java.util.regex Pattern]))
 
 (defn bail-out
   [^String message]
@@ -81,46 +77,6 @@
     (json/read-str value :key-fn keyword)
     (catch Exception _ value)))
 
-(defn read-cert
-  "Loads a PEM file from a given path and returns the certificate from it."
-  [path]
-  (-> path
-      (pem/read)
-      (:certificate)))
-
-(defn make-builder-fn
-  "Creates a builder fn to load the certs for mTLS.
-
-  This is expected by unixsocket-http underlying mechanism."
-  [{:keys [ca cert key]}]
-  (let [{:keys [public-key private-key]} (pem/read key)
-        key-pair                         (KeyPair. public-key private-key)
-        held-cert                        (HeldCertificate. key-pair (read-cert cert))
-        handshake-certs                  (-> (HandshakeCertificates$Builder.)
-                                             (.addTrustedCertificate (read-cert ca))
-                                             (.heldCertificate held-cert (into-array X509Certificate []))
-                                             (.build))]
-    (fn [^OkHttpClient$Builder builder]
-      (.sslSocketFactory builder
-                         (.sslSocketFactory handshake-certs)
-                         (.trustManager handshake-certs)))))
-
-(defn request
-  "Internal fn to perform the request."
-  [{:keys [client method path headers query-params body as throw-exceptions throw-entire-message]}]
-  (-> {:client                client
-       :method                method
-       :url                   path
-       :headers               headers
-       :query-params          query-params
-       :body                  body
-       :as                    (or as :string)
-       :throw-exceptions      throw-exceptions
-       :throw-entire-message? throw-entire-message}
-      (maybe-serialize-body)
-      (http/request)
-      (:body)))
-
 (comment
   (set! *warn-on-reflection* true)
 
@@ -132,11 +88,11 @@
 
   (load-api :podman "v3.2.3")
 
-  (def client (http/client "tcp://localhost:8080"))
+  (def client (rt/client "tcp://localhost:8080" {}))
 
-  (http/get client "/v1.40/_ping")
+  (rt/request {:client client :url "/v1.40/_ping" :method :get})
 
-  (http/get client "/containers/json")
+  (rt/request {:client client :url "/containers/json" :method :get})
 
   (reduce (partial gather-params {:a 42 :b 64 :c 44})
           {}
@@ -148,8 +104,4 @@
 
   (maybe-serialize-body {:body 42})
 
-  (interpolate-path "/a/{w}/b/{x}/{y}" {:x 41 :y 42 :z 43})
-
-  (request {:client (http/client "http://localhost:8080")
-            :method :get
-            :path   "/v3.2.3/libpod/containers/json"}))
+  (interpolate-path "/a/{w}/b/{x}/{y}" {:x 41 :y 42 :z 43}))

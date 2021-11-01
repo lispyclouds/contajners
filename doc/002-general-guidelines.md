@@ -69,6 +69,7 @@
 ```
 
 #### Attach to a container and send data to stdin
+*Note:* `:as :socket` applies only to the JVM runtime.
 ```clojure
 ;; This is a raw bidirectional java.net.Socket, so both reads and writes are possible.
 ;; conny-reader has been started with: docker run -d -i --name conny-reader alpine:latest sh -c "cat - >/out"
