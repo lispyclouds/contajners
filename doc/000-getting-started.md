@@ -52,6 +52,8 @@ via [bb.edn](https://book.babashka.org/#_bb_edn)
 {:deps {io.github.lispyclouds/contajners {:git/sha "<LATEST COMMIT ID HERE>"}}}
 ```
 
+*Note: [curl](https://curl.se/download.html) needs to be present on the PATH to be used from Babashka.*
+
 ## Usage
 
 ### Supported Engines
