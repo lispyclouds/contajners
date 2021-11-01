@@ -12,9 +12,6 @@ An idiomatic, data-driven, REPL friendly Clojure client for [OCI](https://openco
 
 **The README here is for the current main branch and _may not reflect the released version_.**
 
-### Status
-Alpha.
-
 ### Supported Engines
 - [Docker](https://www.docker.com/)
 - [Podman](https://podman.io/)
