@@ -13,8 +13,8 @@ jobs:
       - name: "Prepare Java"
         uses: "actions/setup-java@v2"
         with:
-          distribution: "adopt"
-          java-version: "16"
+          distribution: "temurin"
+          java-version: "17"
 
       - name: "Prepare Clojure CLI"
         uses: "DeLaGuardo/setup-clojure@master"
@@ -29,5 +29,13 @@ jobs:
           key: "contajners-${{ hashFiles('deps.edn') }}"
           restore-keys: "$contajners-"
 
-      - name: "Run tests"
+      - name: Setup Babashka
+        run: |
+          curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install
+          sudo bash install
+
+      - name: "Run JVM tests"
         run: "clojure -M:test"
+
+      - name: "Run bb tests"
+        run: "bb bb-test.clj"
