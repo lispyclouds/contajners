@@ -4,14 +4,11 @@
   (:import
     [java.net URI]))
 
-(defn http-client
-  [uri
-   {:keys [connect-timeout
-           call-timeout
-           mtls]}]
+(defn client
+  [uri {:keys [connect-timeout-ms call-timeout-ms mtls]}]
   {:uri             uri
-   :connect-timeout connect-timeout
-   :call-timeout    call-timeout
+   :connect-timeout connect-timeout-ms
+   :call-timeout    call-timeout-ms
    :mtls            mtls})
 
 (defn- unix-socket?

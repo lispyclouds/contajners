@@ -32,7 +32,7 @@
                          (.sslSocketFactory handshake-certs)
                          (.trustManager handshake-certs)))))
 
-(defn http-client
+(defn client
   [uri opts]
   (http/client uri
                (assoc opts

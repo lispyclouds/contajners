@@ -38,13 +38,13 @@
      :api      (-> api
                    category
                    (merge (select-keys api [:contajners/doc-url])))
-     :conn     (rt/http-client uri
-                               {:connect-timeout-ms connect-timeout
-                                :read-timeout-ms    read-timeout
-                                :write-timeout-ms   write-timeout
-                                :call-timeout-ms    call-timeout
-                                :mode               :recreate
-                                :mtls               mtls})
+     :conn     (rt/client uri
+                          {:connect-timeout-ms connect-timeout
+                           :read-timeout-ms    read-timeout
+                           :write-timeout-ms   write-timeout
+                           :call-timeout-ms    call-timeout
+                           :mode               :recreate
+                           :mtls               mtls})
      :version  version}))
 
 (defn ops
