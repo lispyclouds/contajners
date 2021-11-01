@@ -50,8 +50,9 @@
        :headers               headers
        :query-params          query-params
        :body                  body
-       :as                    (if (= :data as)
-                               nil
+       :as                    (if (or (= :data as)
+                                      (nil? as))
+                               :string
                                as)
        :throw-exceptions      throw-exceptions
        :throw-entire-message? throw-entire-message}
