@@ -1,7 +1,7 @@
 (ns contajners.core
   (:require
-    #?(:bb  [contajners.sci-runtime  :as rt]
-       :clj [contajners.jvm-runtime  :as rt])
+    #?(:bb [contajners.sci-runtime :as rt]
+       :clj [contajners.jvm-runtime :as rt])
     [contajners.impl :as impl]))
 
 (defn categories
@@ -92,7 +92,9 @@
                           :as                   as
                           :throw-exceptions     throw-exceptions
                           :throw-entire-message throw-entire-message}
-          response       (impl/request request)]
+          response       (-> request
+                             (impl/maybe-serialize-body)
+                             (rt/request))]
       (case as
         (:socket :stream) response
         (impl/try-json-parse response)))

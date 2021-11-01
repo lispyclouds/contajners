@@ -1,6 +1,6 @@
 (ns contajners.impl
   (:require
-    #?(:bb  [contajners.sci-runtime :as rt]
+    #?(:bb [contajners.sci-runtime :as rt]
        :clj [contajners.jvm-runtime :as rt])
     [clojure.edn :as edn]
     [clojure.java.io :as io]
@@ -77,22 +77,6 @@
     (json/read-str value :key-fn keyword)
     (catch Exception _ value)))
 
-(defn request
-  "Internal fn to perform the request."
-  [{:keys [client method path headers query-params body as throw-exceptions throw-entire-message]}]
-  (-> {:client                client
-       :method                method
-       :url                   path
-       :headers               headers
-       :query-params          query-params
-       :body                  body
-       :as                    (or as :string)
-       :throw-exceptions      throw-exceptions
-       :throw-entire-message? throw-entire-message}
-      (maybe-serialize-body)
-      (rt/request)
-      (:body)))
-
 (comment
   (set! *warn-on-reflection* true)
 
@@ -120,8 +104,4 @@
 
   (maybe-serialize-body {:body 42})
 
-  (interpolate-path "/a/{w}/b/{x}/{y}" {:x 41 :y 42 :z 43})
-
-  (request {:client (rt/http-client "http://localhost:8080")
-            :method :get
-            :path   "/v3.2.3/libpod/containers/json"}))
+  (interpolate-path "/a/{w}/b/{x}/{y}" {:x 41 :y 42 :z 43}))

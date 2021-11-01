@@ -1,66 +1,61 @@
 (ns contajners.sci-runtime
   (:require
-   [babashka.curl :as curl]
-   [clojure.string :as string])
+    [babashka.curl :as curl])
   (:import
-   [java.net URI]))
+    [java.net URI]))
 
-(defn http-client [uri {:keys [connect-timeout
-                               read-timeout
-                               write-timeout
-                               call-timeout
-                               mtls]}]
-  {:uri uri
+(defn http-client
+  [uri
+   {:keys [connect-timeout
+           read-timeout
+           write-timeout
+           call-timeout
+           mtls]}]
+  {:uri             uri
    :connect-timeout connect-timeout
-   :read-timeout read-timeout
-   :write-timeout write-timeout
-   :call-timeout call-timeout
-   :mtls mtls})
+   :read-timeout    read-timeout
+   :write-timeout   write-timeout
+   :call-timeout    call-timeout
+   :mtls            mtls})
 
 (defn- unix-socket?
   [^String uri]
   (= "unix" (.getScheme (URI. uri))))
 
-(defn- may-be-unix-socket [{{:keys [uri]} :client}]
+(defn to-url
+  [{:keys [uri]} path]
   (if (unix-socket? uri)
     {:raw-args ["--unix-socket" (.getPath (URI. uri))]
-     :uri "http://localhost"}
-    {:uri uri}))
+     :url      (str "http://localhost" path)}
+    {:url (str uri path)}))
 
-(defn- add-url [url {:keys [uri] :as req}]
-  (->> (str uri url)
-       (assoc req :url)
-       (#(dissoc % :uri))))
-
-(defn request [req]
-  (let [{:keys [client method url headers query-params body]} req
-        {:keys [uri connect-timeout read-timeout write-timeout call-timeout mtls debug]} client]
-    (->> req
-         may-be-unix-socket
-         (add-url url)
-         (merge {:debug debug
-                 :method method
-                 :query-params query-params
-                 :headers headers
-                 :body body})
-         curl/request
-         ((fn [o] (do (println o) (println req) o))) ;;TODO: for debugging purpose, remove later
-         )))
+(defn request
+  "Internal fn to perform the request."
+  [{:keys [client method path headers query-params body as throw-exceptions]}]
+  (when (= :socket as)
+    (throw (IllegalArgumentException. ":as :socket is currently unsupported on this runtime, use: :stream or :data")))
+  (-> {:method       method
+       :query-params query-params
+       :headers      headers
+       :body         body
+       :as           (if (= :data as)
+                       nil
+                       as)
+       :throw        throw-exceptions}
+      (into (to-url client path))
+      (curl/request)
+      (:body)))
 
 (comment
+  (to-url {:uri             "unix:///var/run/docker.sock"
+           :connect-timeout nil
+           :read-timeout    nil
+           :write-timeout   nil
+           :call-timeout    nil}
+          "/v1.41/containers/json")
+
   (request
-   {:method :get,
-    :as :string,
-    :client {:uri "unix:///var/run/docker.sock",
-             :connect-timeout nil,
-             :read-timeout nil,
-             :write-timeout nil,
-             :call-timeout nil},
-    :headers nil,
-    :throw-entire-message? nil,
-    :url "/v1.41/containers/json",
-    :query-params {:all true},
-    :throw-exceptions nil,
-    :body nil}
-   )
-)
+    {:method       :get
+     :client       {:uri "unix:///var/run/docker.sock"}
+     :path          "/v1.41/containers/json"
+     :query-params {:all true}}))
