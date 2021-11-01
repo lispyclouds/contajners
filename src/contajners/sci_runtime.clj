@@ -4,19 +4,12 @@
   (:import
     [java.net URI]))
 
-(defn client
-  [uri {:keys [connect-timeout-ms call-timeout-ms mtls]}]
-  {:uri             uri
-   :connect-timeout connect-timeout-ms
-   :call-timeout    call-timeout-ms
-   :mtls            mtls})
-
 (defn- unix-socket?
   [^String uri]
   (= "unix" (.getScheme (URI. uri))))
 
 (defn add-curl-opts
-  [{:keys [uri connect-timeout call-timeout mtls]} path]
+  [uri connect-timeout call-timeout mtls]
   (let [unix     (unix-socket? uri)
         raw-args (if connect-timeout
                    ["--connect-timeout"
@@ -39,8 +32,12 @@
                    raw-args)]
     {:raw-args raw-args
      :url      (if unix
-                 (str "http://localhost" path)
-                 (str uri path))}))
+                 "http://localhost"
+                 uri)}))
+
+(defn client
+  [uri {:keys [connect-timeout-ms call-timeout-ms mtls]}]
+  (add-curl-opts uri connect-timeout-ms call-timeout-ms mtls))
 
 (defn request
   "Internal fn to perform the request."
@@ -55,18 +52,15 @@
                        nil
                        as)
        :throw        throw-exceptions}
-      (into (add-curl-opts client path))
+      (into (update-in client [:url] str path))
       (curl/request)
       (:body)))
 
 (comment
-  (add-curl-opts {:uri             "unix:///var/run/docker.sock"
-                  :connect-timeout 1000
-                  :call-timeout    2000}
-                 "/v1.41/containers/json")
+  (add-curl-opts "unix:///var/run/docker.sock" 1000 2000 "/v1.41/containers/json")
 
   (request
     {:method       :get
-     :client       {:uri "unix:///var/run/docker.sock"}
+     :client       (client "unix:///var/run/docker.sock" {})
      :path         "/v1.41/containers/json"
      :query-params {:all true}}))
