@@ -19,7 +19,7 @@
   (= "unix" (.getScheme (URI. uri))))
 
 (defn add-curl-opts
-  [{:keys [uri connect-timeout call-timeout]} path]
+  [{:keys [uri connect-timeout call-timeout mtls]} path]
   (let [unix     (unix-socket? uri)
         raw-args (if connect-timeout
                    ["--connect-timeout"
@@ -36,6 +36,9 @@
                    raw-args)
         raw-args (if unix
                    (conj raw-args "--unix-socket" (.getPath (URI. uri)))
+                   raw-args)
+        raw-args (if mtls
+                   (conj raw-args "--cacert" (:ca mtls) "--key" (:key mtls) "--cert" (:cert mtls))
                    raw-args)]
     {:raw-args raw-args
      :url      (if unix
