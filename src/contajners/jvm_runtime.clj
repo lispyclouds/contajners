@@ -36,6 +36,8 @@
   [uri opts]
   (http/client uri
                (assoc opts
+                      :mode
+                      :recreate
                       :builder-fn
                       (if-let [mtls (:mtls opts)]
                         (make-builder-fn mtls)
@@ -52,8 +54,8 @@
        :body                  body
        :as                    (if (or (= :data as)
                                       (nil? as))
-                               :string
-                               as)
+                                :string
+                                as)
        :throw-exceptions      throw-exceptions
        :throw-entire-message? throw-entire-message}
       (http/request)

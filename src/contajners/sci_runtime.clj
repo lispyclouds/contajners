@@ -46,7 +46,7 @@
   "Internal fn to perform the request."
   [{:keys [client method path headers query-params body as throw-exceptions]}]
   (when (= :socket as)
-    (throw (IllegalArgumentException. ":as :socket is currently unsupported on this runtime, use: :stream or :data")))
+    (throw (IllegalArgumentException. ":as :socket is currently unsupported on this runtime, use :stream or :data")))
   (-> {:method       method
        :query-params query-params
        :headers      headers

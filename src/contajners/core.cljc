@@ -43,7 +43,6 @@
                            :read-timeout-ms    read-timeout
                            :write-timeout-ms   write-timeout
                            :call-timeout-ms    call-timeout
-                           :mode               :recreate
                            :mtls               mtls})
      :version  version}))
 

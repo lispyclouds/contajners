@@ -88,7 +88,7 @@
 
   (load-api :podman "v3.2.3")
 
-  (def client (rt/http-client "tcp://localhost:8080" {}))
+  (def client (rt/client "tcp://localhost:8080" {}))
 
   (rt/request {:client client :url "/v1.40/_ping" :method :get})
 
