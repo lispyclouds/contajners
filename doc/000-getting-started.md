@@ -2,7 +2,7 @@
 
 #### Clojure CLI/deps.edn
 ```clojure
-{org.clojars.lispyclouds/contajners {:mvn/version "0.0.1"}}
+{org.clojars.lispyclouds/contajners {:mvn/version "0.0.2"}}
 ```
 as a gitlib:
 ```
@@ -11,21 +11,45 @@ as a gitlib:
 
 #### Leiningen/Boot
 ```clojure
-[org.clojars.lispyclouds/contajners "0.0.1"]
+[org.clojars.lispyclouds/contajners "0.0.2"]
 ```
 
 #### Gradle
 ```groovy
-implementation "org.clojars.lispyclouds/contajners:0.0.1"
+implementation "org.clojars.lispyclouds/contajners:0.0.2"
 ```
 
 #### Maven
 ```xml
 <dependency>
-<groupId>org.clojars.lispyclouds</groupId>
-<artifactId>contajners</artifactId>
-<version>0.0.1</version>
+  <groupId>org.clojars.lispyclouds</groupId>
+  <artifactId>contajners</artifactId>
+  <version>0.0.2</version>
 </dependency>
+```
+
+#### Babashka
+
+add at runtime:
+
+```clojure
+(require '[babashka.deps :as deps])
+
+; From maven
+(deps/add-deps '{:deps {org.clojars.lispyclouds/contajners {:mvn/version "0.0.2"}}})
+
+; From Github
+(deps/add-deps '{:deps {io.github.lispyclouds/contajners {:git/sha "<LATEST COMMIT ID HERE>"}}})
+```
+
+via [bb.edn](https://book.babashka.org/#_bb_edn)
+
+```clojure
+; Maven
+{:deps {org.clojars.lispyclouds/contajners {:mvn/version "0.0.2"}}}
+
+; Github
+{:deps {io.github.lispyclouds/contajners {:git/sha "<LATEST COMMIT ID HERE>"}}}
 ```
 
 ## Usage
