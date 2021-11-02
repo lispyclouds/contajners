@@ -6,7 +6,7 @@
 ```
 as a gitlib:
 ```
-{io.github.lispyclouds/contajners {:git/sha "<LATEST COMMIT ID HERE>"}}
+{io.github.lispyclouds/contajners {:git/sha "<COMMIT ID HERE>"}}
 ```
 
 #### Leiningen/Boot
@@ -29,7 +29,6 @@ implementation "org.clojars.lispyclouds/contajners:0.0.2"
 ```
 
 #### Babashka
-
 add at runtime:
 
 ```clojure
@@ -39,7 +38,7 @@ add at runtime:
 (deps/add-deps '{:deps {org.clojars.lispyclouds/contajners {:mvn/version "0.0.2"}}})
 
 ; From Github
-(deps/add-deps '{:deps {io.github.lispyclouds/contajners {:git/sha "<LATEST COMMIT ID HERE>"}}})
+(deps/add-deps '{:deps {io.github.lispyclouds/contajners {:git/sha "<COMMIT ID HERE>"}}})
 ```
 
 via [bb.edn](https://book.babashka.org/#_bb_edn)

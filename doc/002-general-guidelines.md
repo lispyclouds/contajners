@@ -30,14 +30,12 @@
 
 #### Starting a container
 ```clojure
-
 (c/invoke containers-docker {:op     :ContainerStart
                              :params {:id "conny"}})
 ```
 
 #### Creating a network
 ```clojure
-
 (def networks-docker (c/client {:engine   :docker
                                 :category :networks
                                 :conn     {:uri "unix:///var/run/docker.sock"}
@@ -144,13 +142,13 @@ The caveat here is _password protected PEM files aren't supported yet_. Please r
 There are some cases where you may need access to an API that is either experimental or is not in the swagger docs.
 Docker [checkpoint](https://docs.docker.com/engine/reference/commandline/checkpoint/) is one such example. Thanks [@mk](https://github.com/mk) for bringing it up!
 
-Since this uses the published APIs from the swagger spec, the way to access them is to use the lower level fn `fetch` from the `contajners.impl` ns. The caveat is the **response will be totally raw(data, stream or the socket itself)**.
+Since this uses the published APIs from the swagger spec, the way to access them is to use the lower level fn `request` from either the `contajners.jvm-runtime` or `contajners.sci-runtime` ns. The caveat is the **response will be totally raw(data, stream or the socket itself)**.
 
-**Warning**: fns from the `impl` ns are not guaranteed to be stable as they are internal.
+**Warning**: fns from the `impl` and `rt` ns are not guaranteed to have a stable API as they are internal.
 
 client method path headers query-params body as throw-exceptions throw-entire-message
 
-fetch takes the following params as a map:
+`request` takes the following params as a map:
 - client: the connection. Required.
 - path: the relative path to the operation. Required.
 - method: the method of the HTTP request as a keyword. Required.
@@ -162,12 +160,13 @@ fetch takes the following params as a map:
 - throw-entire-message: Includes the full exception as a string. Default: false.
 
 ```clojure
-(require '[contajners.impl :as impl])
-(require '[unixsocket-http.core :as http])
+(require
+  #?(:bb '[contajners.sci-runtime :as rt]
+     :clj '[contajners.jvm-runtime :as rt]))
 
 ;; This is the undocumented API in the Docker Daemon.
 ;; See https://github.com/moby/moby/pull/22049/files#diff-8038ade87553e3a654366edca850f83dR11
-(impl/fetch {:conn   (http/client {:uri "unix:///var/run/docker.sock"})
+(rt/request {:conn   (rt/client "unix:///var/run/docker.sock" {})
              :path   "/v1.41/containers/conny/checkpoints"
              :method :get})
 ```
@@ -175,23 +174,23 @@ fetch takes the following params as a map:
 More examples of low level calls:
 ```clojure
 ;; Ping the server
-(impl/fetch {:conn   (http/client {:uri "unix:///var/run/docker.sock"})
+(rt/request {:conn   (rt/client "unix:///var/run/docker.sock")
              :path   "/v1.41/_ping"
              :method :get})
 
 ;; Copy a folder to a container
-(impl/fetch {:conn   (http/client {:uri "unix:///var/run/docker.sock"})
+(rt/request {:conn   (rt/client "unix:///var/run/docker.sock")
              :method :put
              :path   "/v1.41/containers/conny/archive"
              :query  {:path "/root/src"}
              :body   (-> "src.tar.gz"
-                         io/file
-                         io/input-stream)})
+                          io/file
+                          io/input-stream)})
 ```
 
 #### Reading a streaming output in case of an exception being thrown
 
-When `:throw-exceptions` is passed as `true` and the `:as` is set to `:stream`, to read the response stream, pass `throw-entire-message` as `true` to the invoke. The stream is available as `:body` in the ex-data of the exception.
+When `:throw-exceptions` is passed as `true` and the `:as` is set to `:stream`, to read the response stream, pass `throw-entire-message` as `true` to the invoke. The stream is available as `:body` in the ex-data of the exception. `throw-entire-message` is only applicable to the JVM runtime.
 ```clojure
 (try
   (invoke containers-docker
@@ -206,3 +205,20 @@ When `:throw-exceptions` is passed as `true` and the `:as` is set to `:stream`, 
 ```
 
 And anything else is possible!
+
+### Adding support for a new container engine
+
+contajners has been designed keeping in mind that support for newer and upcoming engines should be simple enough to add. The only requirement from the engine is that it must expose a REST API and has some form of Swagger/OpenAPI docs available.
+
+Currently only Swagger 2.0 parsing is there as thats whats necessary now however its easy to add support for OpenAPI 3.0+. Please raise an issue when necessary.
+
+- Clone the repository
+- Navigate to `fetch_api/main.clj`
+- In the `sources` map add the name of the engine as a key
+  - For the value, add the `:url` template from where the api yaml can be downloaded
+  - add the `doc-url` template where the doc of a version and OperationId can be seen
+  - add the list of available `:versions` which would be used in the template urls
+- You can add an optional `:namespace` which makes the category available namespaced, for example `:libpod/containers` for podman and `:containers` for docker. This is useful for APIs exposing similar functionality but are compatible with other engines. Like Podman is with the Docker API.
+- Run `clojure -X:fetch_api` from the root of the repo to download and parse all the APIs into the optimized edn files in `resources/contajners/<the engine name>/<version>.edn`
+- When creating the client with `contajners.core/client` the new engine should be available and can pass it as `:the engine name` as a keyword. Similarly `contajners.core/categories` should work as well
+- Also consider contributing it back here, we all would LOVE to use _that shiny new engine_ 😍
