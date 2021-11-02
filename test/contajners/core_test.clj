@@ -13,8 +13,10 @@
                 {:op     :ImageCreate
                  :params {:fromImage image}})
       (let [images (c/invoke client {:op :ImageList})]
-        (t/is (= [image]
-                 (first (map :RepoTags images)))))
+        (t/is (contains? (->> images
+                              (mapcat :RepoTags)
+                              (into #{}))
+                         image)))
       (c/invoke client
                 {:op     :ImageDelete
                  :params {:name image}}))))
