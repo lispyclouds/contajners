@@ -85,7 +85,7 @@
                                                     :path
                                                     (impl/interpolate-path (:path request-params))
                                                     (as-> path (str "/" version path)))
-                          :headers              (:headers request-params)
+                          :headers              (:header request-params)
                           :query-params         (:query request-params)
                           :body                 data
                           :as                   as
