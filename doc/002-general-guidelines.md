@@ -174,12 +174,12 @@ client method path headers query-params body as throw-exceptions throw-entire-me
 More examples of low level calls:
 ```clojure
 ;; Ping the server
-(rt/request {:conn   (rt/client "unix:///var/run/docker.sock")
+(rt/request {:conn   (rt/client "unix:///var/run/docker.sock" {})
              :path   "/v1.41/_ping"
              :method :get})
 
 ;; Copy a folder to a container
-(rt/request {:conn   (rt/client "unix:///var/run/docker.sock")
+(rt/request {:conn   (rt/client "unix:///var/run/docker.sock" {})
              :method :put
              :path   "/v1.41/containers/conny/archive"
              :query  {:path "/root/src"}
