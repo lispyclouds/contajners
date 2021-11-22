@@ -182,7 +182,7 @@ More examples of low level calls:
 (rt/request {:client (rt/client "unix:///var/run/docker.sock" {})
              :method :put
              :path   "/v1.41/containers/conny/archive"
-             :query  {:path "/root/src"}
+             :query-params  {:path "/root/src"}
              :body   (-> "src.tar.gz"
                           io/file
                           io/input-stream)})
