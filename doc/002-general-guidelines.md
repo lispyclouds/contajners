@@ -166,7 +166,7 @@ client method path headers query-params body as throw-exceptions throw-entire-me
 
 ;; This is the undocumented API in the Docker Daemon.
 ;; See https://github.com/moby/moby/pull/22049/files#diff-8038ade87553e3a654366edca850f83dR11
-(rt/request {:conn   (rt/client "unix:///var/run/docker.sock" {})
+(rt/request {:client (rt/client "unix:///var/run/docker.sock" {})
              :path   "/v1.41/containers/conny/checkpoints"
              :method :get})
 ```
@@ -174,12 +174,12 @@ client method path headers query-params body as throw-exceptions throw-entire-me
 More examples of low level calls:
 ```clojure
 ;; Ping the server
-(rt/request {:conn   (rt/client "unix:///var/run/docker.sock" {})
+(rt/request {:client (rt/client "unix:///var/run/docker.sock" {})
              :path   "/v1.41/_ping"
              :method :get})
 
 ;; Copy a folder to a container
-(rt/request {:conn   (rt/client "unix:///var/run/docker.sock" {})
+(rt/request {:client (rt/client "unix:///var/run/docker.sock" {})
              :method :put
              :path   "/v1.41/containers/conny/archive"
              :query  {:path "/root/src"}
