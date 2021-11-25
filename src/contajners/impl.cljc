@@ -4,7 +4,8 @@
        :clj [contajners.jvm-runtime :as rt])
     [clojure.edn :as edn]
     [clojure.java.io :as io]
-    [clojure.data.json :as json]
+    #?(:bb [cheshire.core :as json]
+       :clj [clojure.data.json :as json])
     [clojure.string :as s])
   (:import
     [java.io PushbackReader]
@@ -50,7 +51,7 @@
   (if (map? body)
     (-> request
         (assoc-in [:headers "content-type"] "application/json")
-        (update :body json/write-str))
+        (update :body #?(:bb json/generate-string :clj json/write-str)))
     request))
 
 (defn interpolate-path
@@ -74,7 +75,8 @@
   "Attempts to parse `value` as a JSON string. no-op if its not a valid JSON string."
   [value]
   (try
-    (json/read-str value :key-fn keyword)
+    #?(:bb (json/parse-string value true)
+       :clj (json/read-str value :key-fn keyword))
     (catch Exception _ value)))
 
 (comment
