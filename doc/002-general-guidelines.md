@@ -144,10 +144,12 @@ There are cases where you may need to send multiple values to a single param, fo
 
 Whenever the docs mention about an `Array of <type>` you can send a collection of those values to that param.
 ```clojure
-(c/invoke images
+(c/invoke containers-podman
           {:op     :ContainersStatsAllLibpod
            :params {:containers ["id1" "name1" "id2"]}})
 ```
+
+Thanks [@leahneukirchen](https://github.com/leahneukirchen) for this!
 
 ### Not so common scenarios
 
