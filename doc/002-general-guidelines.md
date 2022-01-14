@@ -136,6 +136,19 @@ Since both https and unix sockets are suppported, and generally docker deamons e
 
 The caveat here is _password protected PEM files aren't supported yet_. Please raise an issue if there is a need for it.
 
+#### Supplying multiple values to a single param
+
+There are cases where you may need to send multiple values to a single param, for example:
+- [ContainersStatsAllLibpod](https://docs.podman.io/en/latest/_static/api.html#operation/ContainersStatsAllLibpod)
+- [ImageCommitLibpod](https://docs.podman.io/en/latest/_static/api.html#operation/ImageCommitLibpod)
+
+Whenever the docs mention about an `Array of <type>` you can send a collection of those values to that param.
+```clojure
+(c/invoke images
+          {:op     :ContainersStatsAllLibpod
+           :params {:containers ["id1" "name1" "id2"]}})
+```
+
 ### Not so common scenarios
 
 #### Accessing undocumented/experimental APIs
