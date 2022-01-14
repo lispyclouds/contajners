@@ -1,4 +1,4 @@
-(defproject org.clojars.lispyclouds/contajners "0.0.4"
+(defproject org.clojars.lispyclouds/contajners "0.0.5"
   :author       "Rahul De <rahul@mailbox.org>"
   :url          "https://github.com/lispyclouds/contajners"
   :description  "An idiomatic, data-driven, REPL friendly clojure client for OCI container engines"
