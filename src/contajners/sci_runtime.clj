@@ -39,13 +39,26 @@
   [uri {:keys [connect-timeout-ms call-timeout-ms mtls]}]
   (add-curl-opts uri connect-timeout-ms call-timeout-ms mtls))
 
+(defn adapt-query-params
+  "Adapts the query params to support keys having multiple values for bb curl.
+
+  {:a [1 2 3] :b 42} => [[:a 1] [:a 2] [:a 3] [:b 42]]
+  {:a 41 :b 42} => [[:a 41] [:b 42]]"
+  [query-params]
+  (->> query-params
+       (mapcat (fn [[k v]]
+                 (if (sequential? v)
+                   (map #(vector k %) v)
+                   [[k v]])))
+       (into [])))
+
 (defn request
   "Internal fn to perform the request."
   [{:keys [client method path headers query-params body as throw-exceptions]}]
   (when (= :socket as)
     (throw (IllegalArgumentException. ":as :socket is currently unsupported on this runtime, use :stream or :data")))
   (-> {:method       method
-       :query-params query-params
+       :query-params (adapt-query-params query-params)
        :headers      headers
        :body         body
        :as           (if (= :data as)
@@ -57,6 +70,10 @@
       (:body)))
 
 (comment
+  (adapt-query-params {:a [1 2 3] :b 42})
+
+  (adapt-query-params {:a 41 :b 42})
+
   (add-curl-opts "unix:///var/run/docker.sock" 1000 2000 "/v1.41/containers/json")
 
   (request
