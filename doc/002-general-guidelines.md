@@ -54,24 +54,30 @@ script would build the `contajners-build-example` image.
   (process/sh ["tar" "tvf" "docker.tar.gz"]
               {:out *out*}))
 
-(defn build! []
-  (let [json-input-stream
-        (c/invoke build
-                  {:op :ImageBuild
-                   :params {:t "contajners-build-example"
-                            :Content-type "application/x-tar"}
-                   :data (io/input-stream "docker.tar.gz")
-                   :as :stream}) ;; this is the command that is sent
+(defn build-cmd! []
+  (c/invoke
+   build
+   {:op :ImageBuild
+    :params {:t "contajners-build-example"
+             :Content-type "application/x-tar"}
+    :data (io/input-stream "docker.tar.gz")
+    :as :stream}))
 
-        ;; the following is to have the output displayed as a stream into *out*
-        stream-data (json/parsed-seq (io/reader json-input-stream))]
+(defn show-build-output! [input-stream]
+  (let [stream-data (json/parsed-seq (io/reader input-stream))]
     (loop [data stream-data]
       (when-let [line (first data)]
         (if-let [s (get line "stream")] (do (print s) (flush)) (pprint/pprint line))
         (recur (rest data))))))
 
+(defn build! [& {:keys [verbose?]}]
+  (let [docker-output-stream (build-cmd!)]
+    (when verbose?
+      (show-build-output! docker-output-stream))))
+
 (->tar!)
-(->build!)
+(->build! :verbose? true)
+;; (->build! {:verbose? true}) ;; in 1.11
 ```
 Thanks [davidpham87](https://github.com/davidpham87) for this!
 
