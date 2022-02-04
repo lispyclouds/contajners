@@ -65,6 +65,8 @@ script would build the `contajners-build-example` image.
 (->tar!)
 (->build!)
 ```
+Thanks [davidpham87](https://github.com/davidpham87) for this!
+
 
 #### Creating a container
 ```clojure
