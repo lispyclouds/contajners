@@ -13,6 +13,59 @@
                          :params {:fromImage "busybox:musl"}})
 ```
 
+#### Building an image with Docker
+
+Docker builds an image within a context, ie a set of files. The docker API
+requires a tar file as the body of the request. As of 2022-02-04, the header
+field `Content-type` is not filled by its default value
+(`"application/x-tar"`), so it has to be added manually.
+
+Thus, to build an image, a user needs to create a tar with all the relevant
+files for building it and also add the `:Content-type` field in the query
+params.
+
+Given the following `Dockerfile`
+
+``` dockerfile
+FROM docker.io/amazoncorretto:17-alpine3.15-jdk
+COPY app.jar .
+CMD ["java", "-jar", "app.jar", "init"]
+```
+
+and an arbitrary uberjar `app.jar` at the root of your project, the following
+script would build the `contajners-build-example` image.
+
+```clojure
+(require '[babashka.process :as process])
+
+(def build (c/client {:engine :docker
+                      :category :build
+                      :version  "v1.41"
+                      :conn     {:uri "unix:///var/run/docker.sock"}}))
+
+(defn ->tar! []
+  ;; gather the files in the tar file
+  (process/sh ["tar" "-czvf" "docker.tar.gz"
+               "app.jar"
+               "Dockerfile"])
+  ;; prints the content of the tar file
+  (process/sh ["tar" "tvf" "docker.tar.gz"]
+              {:out *out*}))
+
+(defn build! []
+  (->
+   (c/invoke build
+             {:op :ImageBuild
+              :params {:t "contajners-build-example"
+                       :Content-type "application/x-tar"}
+              :data (io/input-stream "docker.tar.gz")
+              :as :stream})
+   (io/copy *out*)))
+
+(->tar!)
+(->build!)
+```
+
 #### Creating a container
 ```clojure
 (def containers-docker (c/client {:engine :docker
