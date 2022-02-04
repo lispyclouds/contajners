@@ -58,7 +58,7 @@ script would build the `contajners-build-example` image.
   (c/invoke
    build
    {:op :ImageBuild
-    :params {:t "contajners-build-example"
+    :params {:t            "contajners-build-example"
              :Content-type "application/x-tar"}
     :data (io/input-stream "docker.tar.gz")
     :as :stream}))
@@ -77,7 +77,7 @@ script would build the `contajners-build-example` image.
 
 (->tar!)
 (->build! :verbose? true)
-;; (->build! {:verbose? true}) ;; in 1.11
+;; (->build! {:verbose? true}) ;; using Clojure 1.11+
 ```
 Thanks [davidpham87](https://github.com/davidpham87) for this!
 
