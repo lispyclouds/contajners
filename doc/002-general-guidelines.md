@@ -37,6 +37,8 @@ script would build the `contajners-build-example` image.
 
 ```clojure
 (require '[babashka.process :as process])
+(require '[cheshire.core :as json])
+(require '[clojure.pprint :as pprint])
 
 (def build (c/client {:engine :docker
                       :category :build
@@ -52,18 +54,30 @@ script would build the `contajners-build-example` image.
   (process/sh ["tar" "tvf" "docker.tar.gz"]
               {:out *out*}))
 
-(defn build! []
-  (->
-   (c/invoke build
-             {:op :ImageBuild
-              :params {:t "contajners-build-example"
-                       :Content-type "application/x-tar"}
-              :data (io/input-stream "docker.tar.gz")
-              :as :stream})
-   (io/copy *out*)))
+(defn build-cmd! []
+  (c/invoke
+   build
+   {:op :ImageBuild
+    :params {:t "contajners-build-example"
+             :Content-type "application/x-tar"}
+    :data (io/input-stream "docker.tar.gz")
+    :as :stream}))
+
+(defn show-build-output! [input-stream]
+  (let [stream-data (json/parsed-seq (io/reader input-stream))]
+    (loop [data stream-data]
+      (when-let [line (first data)]
+        (if-let [s (get line "stream")] (do (print s) (flush)) (pprint/pprint line))
+        (recur (rest data))))))
+
+(defn build! [& {:keys [verbose?]}]
+  (let [docker-output-stream (build-cmd!)]
+    (when verbose?
+      (show-build-output! docker-output-stream))))
 
 (->tar!)
-(->build!)
+(->build! :verbose? true)
+;; (->build! {:verbose? true}) ;; in 1.11
 ```
 Thanks [davidpham87](https://github.com/davidpham87) for this!
 
