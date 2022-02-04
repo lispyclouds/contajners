@@ -37,6 +37,8 @@ script would build the `contajners-build-example` image.
 
 ```clojure
 (require '[babashka.process :as process])
+(require '[cheshire.core :as json])
+(require '[clojure.pprint :as pprint])
 
 (def build (c/client {:engine :docker
                       :category :build
@@ -53,14 +55,20 @@ script would build the `contajners-build-example` image.
               {:out *out*}))
 
 (defn build! []
-  (->
-   (c/invoke build
-             {:op :ImageBuild
-              :params {:t "contajners-build-example"
-                       :Content-type "application/x-tar"}
-              :data (io/input-stream "docker.tar.gz")
-              :as :stream})
-   (io/copy *out*)))
+  (let [json-input-stream
+        (c/invoke build
+                  {:op :ImageBuild
+                   :params {:t "contajners-build-example"
+                            :Content-type "application/x-tar"}
+                   :data (io/input-stream "docker.tar.gz")
+                   :as :stream}) ;; this is the command that is sent
+
+        ;; the following is to have the output displayed as a stream into *out*
+        stream-data (json/parsed-seq (io/reader json-input-stream))]
+    (loop [data stream-data]
+      (when-let [line (first data)]
+        (if-let [s (get line "stream")] (do (print s) (flush)) (pprint/pprint line))
+        (recur (rest data))))))
 
 (->tar!)
 (->build!)
