@@ -18,7 +18,7 @@
 Docker builds an image within a context, ie a set of files. The docker API
 requires a tar file as the body of the request. As of 2022-02-04, the header
 field `Content-type` is not filled by its default value
-(`"application/x-tar"`), so it has to be added manually.
+`application/x-tar`, so it has to be added manually.
 
 Thus, to build an image, a user needs to create a tar with all the relevant
 files for building it and also add the `:Content-type` field in the query
@@ -32,7 +32,7 @@ COPY app.jar .
 CMD ["java", "-jar", "app.jar", "init"]
 ```
 
-and an arbitrary uberjar `app.jar` at the root of your project, the following
+and an arbitrary jar `app.jar` at the root of your project, the following
 script would build the `contajners-build-example` image.
 
 ```clojure
@@ -40,12 +40,14 @@ script would build the `contajners-build-example` image.
 (require '[cheshire.core :as json])
 (require '[clojure.pprint :as pprint])
 
-(def build (c/client {:engine :docker
-                      :category :build
-                      :version  "v1.41"
-                      :conn     {:uri "unix:///var/run/docker.sock"}}))
+(def build
+  (c/client {:engine   :docker
+             :category :build
+             :version  "v1.41"
+             :conn     {:uri "unix:///var/run/docker.sock"}}))
 
-(defn ->tar! []
+(defn ->tar!
+  []
   ;; gather the files in the tar file
   (process/sh ["tar" "-czvf" "docker.tar.gz"
                "app.jar"
@@ -54,33 +56,39 @@ script would build the `contajners-build-example` image.
   (process/sh ["tar" "tvf" "docker.tar.gz"]
               {:out *out*}))
 
-(defn build-cmd! []
+(defn build-cmd!
+  []
   (c/invoke
-   build
-   {:op :ImageBuild
-    :params {:t            "contajners-build-example"
-             :Content-type "application/x-tar"}
-    :data (io/input-stream "docker.tar.gz")
-    :as :stream}))
+    build
+    {:op     :ImageBuild
+     :params {:t            "contajners-build-example"
+              :Content-type "application/x-tar"} ;; Add the header here.
+     :data   (io/input-stream "docker.tar.gz")
+     :as     :stream}))
 
-(defn show-build-output! [input-stream]
+(defn show-build-output!
+  [input-stream]
   (let [stream-data (json/parsed-seq (io/reader input-stream))]
     (loop [data stream-data]
       (when-let [line (first data)]
-        (if-let [s (get line "stream")] (do (print s) (flush)) (pprint/pprint line))
+        (if-let [s (get line "stream")]
+          (do
+            (print s)
+            (flush))
+          (pprint/pprint line))
         (recur (rest data))))))
 
-(defn build! [& {:keys [verbose?]}]
+(defn build!
+  [& {:keys [verbose?]}]
   (let [docker-output-stream (build-cmd!)]
     (when verbose?
       (show-build-output! docker-output-stream))))
 
 (->tar!)
-(->build! :verbose? true)
-;; (->build! {:verbose? true}) ;; using Clojure 1.11+
+(->build! {:verbose? true})
+; (->build! :verbose? true) ;; using Clojure 1.11+
 ```
-Thanks [davidpham87](https://github.com/davidpham87) for this!
-
+Thanks [@davidpham87](https://github.com/davidpham87) for this example!
 
 #### Creating a container
 ```clojure
