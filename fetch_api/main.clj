@@ -4,6 +4,7 @@
     [clojure.string :as s]
     [java-http-clj.core :as http])
   (:import
+    [java.util.concurrent Executors Future]
     [io.swagger.parser OpenAPIParser]
     [io.swagger.v3.oas.models Operation PathItem]
     [io.swagger.v3.oas.models.parameters Parameter]
@@ -58,7 +59,9 @@
 
 (defn find-first
   [pred coll]
-  (some #(when (pred %) %) coll))
+  (some #(when (pred %)
+           %)
+        coll))
 
 ;; TODO: Better?
 (defn ->category
@@ -106,13 +109,13 @@
 (defn ->operation
   "Given a path, http method and an io.swagger.v3.oas.models.Operation, returns a map of operation id and necessary keys."
   [path method ^Operation operation]
-  (let [op {:summary (.getSummary operation)
-            :method  (-> method
-                         str
-                         s/lower-case
-                         keyword)
-            :path    path
-            :params  (map ->params (.getParameters operation))}
+  (let [op           {:summary (.getSummary operation)
+                      :method  (-> method
+                                   str
+                                   s/lower-case
+                                   keyword)
+                      :path    path
+                      :params  (map ->params (.getParameters operation))}
         request-body (.getRequestBody operation)]
     {(keyword (.getOperationId operation)) (if request-body
                                              (assoc op :request-body true)
@@ -141,44 +144,59 @@
          (mapcat #(->operations namespaces (key %) (val %)))
          (apply (partial merge-with into)))))
 
-(defn write-api
-  "Writes the data to a path, creating it if non-existent."
-  [content path]
-  (when-not (.exists (io/file path))
-    (io/make-parents path))
-  (with-open [w (io/writer path)]
-    (binding [*print-length* false
-              *out* w]
-      (pr content))))
-
-;; TODO: Download in async
-(defn dowload-and-process
-  "Given the engine, url-template, api version and namespaces, downloads and writes out as an edn file in resources."
-  [engine url-template doc-url version namespaces]
-  (println (format "Processing version %s for %s"
-                   version
-                   engine))
+(defn fetch-spec
+  [url-template version]
   (let [{:keys [status body]} (http/get (format url-template version))]
     (if (>= status 400)
-      (throw (RuntimeException. (format "Error fetching version %s: %s"
-                                        version
-                                        body)))
-      (-> body
-          (parse namespaces)
-          (assoc :contajners/doc-url doc-url)
-          (write-api (format "resources/contajners/%s/%s.edn"
-                             (name engine)
-                             version))))))
+      (.println *err*
+                (format "Error fetching version %s: %s"
+                        version
+                        body))
+      body)))
+
+(defn process-spec
+  [spec doc-url namespaces]
+  (-> spec
+      (parse namespaces)
+      (assoc :contajners/doc-url doc-url)))
+
+(defn write-spec
+  [spec engine version]
+  (let [path (format "resources/contajners/%s/%s.edn"
+                     (name engine)
+                     version)]
+    (when-not (.exists (io/file path))
+      (io/make-parents path))
+    (with-open [w (io/writer path)]
+      (binding [*print-length* false
+                *out*          w]
+        (pr spec)))))
 
 (defn run
   "Driver fn, iterates over the sources, downloads, processes and saves as resources."
   [& _]
-  (let [download-info (for [[engine {:keys [url doc-url namespaces versions]}] sources
-                            version versions]
-                        [engine url doc-url version namespaces])]
-    (->> download-info
-         (pmap #(apply dowload-and-process %))
-         (dorun))))
+  (let [executor      (Executors/newVirtualThreadPerTaskExecutor)
+        download-info (for [[engine {:keys [url doc-url namespaces versions]}] sources
+                            version                                            versions]
+                        {:engine engine :url url :doc-url doc-url :version version :namespaces namespaces})
+        fetches       (map #(fn []
+                              (fetch-spec (% :url) (% :version)))
+                           download-info)
+        fetched       (->> (.invokeAll executor fetches)
+                           (map #(.get ^Future %))
+                           (filter some?))
+        processors    (map #(fn [spec]
+                              (process-spec spec (% :doc-url) (% :namespaces)))
+                           download-info)
+        processed     (pmap #(%1 %2) processors fetched)
+        writers       (map #(fn [spec]
+                              (write-spec spec (% :engine) (% :version)))
+                           download-info)
+        writes        (map #(fn []
+                              (%1 %2))
+                           writers
+                           processed)]
+    (run! #(.get ^Future %) (.invokeAll executor writes))))
 
 (comment
   (set! *warn-on-reflection* true)
@@ -190,20 +208,6 @@
   (->category "/libpod/containers" #{"/libpod"})
 
   (->category "/containers/json" #{})
-
-  (write-api "resources/contajners/docker/blah.edn" {:a 42})
-
-  (dowload-and-process :docker
-                       "https://docs.docker.com/engine/api/v%s.yaml"
-                       "https://docs.podman.io/en/%s/_static/api.html#operation/%s"
-                       "v1.41"
-                       #{})
-
-  (dowload-and-process :podman
-                       "https://storage.googleapis.com/libpod-master-releases/swagger-v3.2.2.yaml"
-                       "https://docs.docker.com/engine/api/%s/#operation/%s"
-                       "v3.2.2"
-                       #{"/libpod"})
 
   (-> "https://storage.googleapis.com/libpod-master-releases/swagger-v3.2.2.yaml"
       http/get

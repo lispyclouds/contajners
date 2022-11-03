@@ -305,12 +305,13 @@ contajners has been designed keeping in mind that support for newer and upcoming
 Currently only Swagger 2.0 parsing is there as thats whats necessary now however its easy to add support for OpenAPI 3.0+. Please raise an issue when necessary.
 
 - Clone the repository
+- Make sure JDK 19+ is installed
 - Navigate to `fetch_api/main.clj`
 - In the `sources` map add the name of the engine as a key
   - For the value, add the `:url` template from where the api yaml can be downloaded
   - add the `doc-url` template where the doc of a version and OperationId can be seen
   - add the list of available `:versions` which would be used in the template urls
 - You can add an optional `:namespace` which makes the category available namespaced, for example `:libpod/containers` for podman and `:containers` for docker. This is useful for APIs exposing similar functionality but are compatible with other engines. Like Podman is with the Docker API.
-- Run `clojure -X:fetch-api` from the root of the repo to download and parse all the APIs into the optimized edn files in `resources/contajners/<the engine name>/<version>.edn`
+- Run `clojure -J--enable-preview -X:fetch-api` from the root of the repo to download and parse all the APIs into the optimized edn files in `resources/contajners/<the engine name>/<version>.edn`
 - When creating the client with `contajners.core/client` the new engine should be available and can pass it as `:the engine name` as a keyword. Similarly `contajners.core/categories` should work as well
 - Also consider contributing it back here, we all would LOVE to use _that shiny new engine_ 😍
