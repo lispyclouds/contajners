@@ -145,22 +145,26 @@
          (apply (partial merge-with into)))))
 
 (defn fetch-spec
+  "Downloads the spec from the URL and version provided."
   [url-template version]
   (let [{:keys [status body]} (http/get (format url-template version))]
     (if (>= status 400)
-      (.println *err*
-                (format "Error fetching version %s: %s"
-                        version
-                        body))
+      (binding [*out* *err*]
+        (println
+          (format "Error fetching version %s: %s"
+                  version
+                  body)))
       body)))
 
 (defn process-spec
+  "Processes the spec with the namespaces and adds metadata."
   [spec doc-url namespaces]
   (-> spec
       (parse namespaces)
       (assoc :contajners/doc-url doc-url)))
 
 (defn write-spec
+  "Writes the spec, creating the paths as and when needed."
   [spec engine version]
   (let [path (format "resources/contajners/%s/%s.edn"
                      (name engine)
@@ -178,25 +182,26 @@
   (let [executor      (Executors/newVirtualThreadPerTaskExecutor)
         download-info (for [[engine {:keys [url doc-url namespaces versions]}] sources
                             version                                            versions]
-                        {:engine engine :url url :doc-url doc-url :version version :namespaces namespaces})
-        fetches       (map #(fn []
+                        {:engine     engine
+                         :url        url
+                         :doc-url    doc-url
+                         :version    version
+                         :namespaces namespaces})
+        fetchers      (map #(fn []
                               (fetch-spec (% :url) (% :version)))
                            download-info)
-        fetched       (->> (.invokeAll executor fetches)
+        fetched       (->> (.invokeAll executor fetchers)
                            (map #(.get ^Future %))
                            (filter some?))
-        processors    (map #(fn [spec]
-                              (process-spec spec (% :doc-url) (% :namespaces)))
-                           download-info)
-        processed     (pmap #(%1 %2) processors fetched)
-        writers       (map #(fn [spec]
-                              (write-spec spec (% :engine) (% :version)))
-                           download-info)
-        writes        (map #(fn []
-                              (%1 %2))
-                           writers
-                           processed)]
-    (run! #(.get ^Future %) (.invokeAll executor writes))))
+        processed     (pmap #(process-spec %1 (%2 :doc-url) (%2 :namespaces))
+                            fetched
+                            download-info)]
+    (->> (map #(fn []
+                 (write-spec %1 (%2 :engine) (%2 :version)))
+              processed
+              download-info)
+         (.invokeAll executor)
+         (run! #(.get ^Future %)))))
 
 (comment
   (set! *warn-on-reflection* true)

@@ -6,7 +6,8 @@
  :aliases {:fetch-api {:replace-paths ["fetch_api"]
                        :extra-deps    {io.swagger.parser.v3/swagger-parser {:mvn/version "2.1.6"}
                                        java-http-clj/java-http-clj         {:mvn/version "0.4.3"}}
-                       :exec-fn       main/run}
+                       :exec-fn       main/run
+                       :jvm-opts      ["--enable-preview"]}
            :test      {:extra-deps {lambdaisland/kaocha                 {:mvn/version "1.71.1119"}
                                     org.clojure/test.check              {:mvn/version "1.1.1"}
                                     io.swagger.parser.v3/swagger-parser {:mvn/version "2.1.6"}
