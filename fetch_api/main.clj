@@ -57,6 +57,8 @@
                          "v4.2.1"
                          "v4.3.0"]}})
 
+(def resource-path "resources/contajners")
+
 (defn find-first
   [pred coll]
   (some #(when (pred %)
@@ -164,17 +166,22 @@
       (assoc :contajners/doc-url doc-url)))
 
 (defn write-spec
-  "Writes the spec, creating the paths as and when needed."
+  "Writes the spec as minified edn."
   [spec engine version]
-  (let [path (format "resources/contajners/%s/%s.edn"
+  (let [path (format "%s/%s/%s.edn"
+                     resource-path
                      (name engine)
                      version)]
-    (when-not (.exists (io/file path))
-      (io/make-parents path))
     (with-open [w (io/writer path)]
       (binding [*print-length* false
                 *out*          w]
         (pr spec)))))
+
+(defn ensure-resource-dirs
+  [engine]
+  (let [path (io/file (str resource-path "/" (name engine)))]
+    (when-not (.exists path)
+      (.mkdirs path))))
 
 (defn run
   "Driver fn, iterates over the sources, downloads, processes and saves as resources."
@@ -196,6 +203,7 @@
         processed     (pmap #(process-spec %1 (%2 :doc-url) (%2 :namespaces))
                             fetched
                             download-info)]
+    (run! ensure-resource-dirs (keys sources))
     (->> (map #(fn []
                  (write-spec %1 (%2 :engine) (%2 :version)))
               processed
