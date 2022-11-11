@@ -4,7 +4,7 @@
 ```clojure
 {org.clojars.lispyclouds/contajners {:mvn/version "0.0.6"}}
 ```
-as a gitlib:
+as a gitlib (prefer this method as new APIs are added more frequently than this is released on clojars):
 ```
 {io.github.lispyclouds/contajners {:git/sha "<COMMIT ID HERE>"}}
 ```
