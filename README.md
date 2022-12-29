@@ -12,6 +12,8 @@ An idiomatic, data-driven, REPL friendly Clojure client for [OCI](https://openco
 
 **The README here is for the current main branch and _may not reflect the released version_.**
 
+Note: Newer versions of the API specs are added as and when they get released. Use this lib as a [git lib](https://clojure.org/guides/deps_and_cli#_using_git_libraries) to get all the latest API specs and releases to clojars would be done for new features and/or when requested. Please raise an issue or drop a message in the clojurians [slack channel](https://clojurians.slack.com/messages/C0PME9N9X) for this.
+
 ### Supported Engines
 - [Docker](https://www.docker.com/)
 - [Podman](https://podman.io/)
