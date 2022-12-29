@@ -8,9 +8,9 @@
                                        java-http-clj/java-http-clj         {:mvn/version "0.4.3"}}
                        :exec-fn       main/run
                        :jvm-opts      ["--enable-preview"]}
-           :test      {:extra-deps {lambdaisland/kaocha                 {:mvn/version "1.71.1119"}
-                                    org.clojure/test.check              {:mvn/version "1.1.1"}
-                                    io.swagger.parser.v3/swagger-parser {:mvn/version "2.1.9"}
-                                    java-http-clj/java-http-clj         {:mvn/version "0.4.3"}}
-                       :jvm-opts   ["--enable-preview"]
-                       :main-opts  ["-m" "kaocha.runner" "--reporter" "kaocha.report.progress/report"]}}}
+           :test      {:extra-paths ["test"]
+                       :extra-deps  {io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
+                                     io.swagger.parser.v3/swagger-parser  {:mvn/version "2.1.9"}
+                                     java-http-clj/java-http-clj          {:mvn/version "0.4.3"}}
+                       :main-opts   ["-m" "cognitect.test-runner"]
+                       :exec-fn     cognitect.test-runner.api/test}}}
