@@ -24,6 +24,6 @@ Note: Newer versions of the API specs are added as and when they get released. U
 
 ## License
 
-Copyright © 2021 Rahul De.
+Copyright © 2021- Rahul De.
 
 Distributed under the MIT License. See LICENSE.
