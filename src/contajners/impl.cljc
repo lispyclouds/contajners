@@ -1,15 +1,15 @@
 (ns contajners.impl
   (:require
-    #?(:bb [contajners.sci-runtime :as rt]
-       :clj [contajners.jvm-runtime :as rt])
-    [clojure.edn :as edn]
-    [clojure.java.io :as io]
-    #?(:bb [cheshire.core :as json]
-       :clj [clojure.data.json :as json])
-    [clojure.string :as s])
+   #?(:bb [cheshire.core :as json]
+      :clj [clojure.data.json :as json])
+   #?(:bb [contajners.sci-runtime :as rt]
+      :clj [contajners.jvm-runtime :as rt])
+   [clojure.edn :as edn]
+   [clojure.java.io :as io]
+   [clojure.string :as s])
   (:import
-    [java.io PushbackReader]
-    [java.util.regex Pattern]))
+   [java.io PushbackReader]
+   [java.util.regex Pattern]))
 
 (defn bail-out
   [^String message]
@@ -24,9 +24,9 @@
   "Loads the API EDN file from resources."
   [engine version]
   (if-let [config (io/resource
-                    (format "contajners/%s/%s.edn"
-                            (name engine)
-                            version))]
+                   (format "contajners/%s/%s.edn"
+                           (name engine)
+                           version))]
     (-> config
         (io/reader)
         (PushbackReader.)

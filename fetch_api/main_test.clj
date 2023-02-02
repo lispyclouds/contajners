@@ -1,11 +1,11 @@
 (ns main-test
   (:require
-    [clojure.test :as t]
-    [main :as m])
+   [clojure.test :as t]
+   [main :as m])
   (:import
-    [io.swagger.v3.oas.models Operation PathItem]
-    [io.swagger.v3.oas.models.media StringSchema]
-    [io.swagger.v3.oas.models.parameters PathParameter QueryParameter RequestBody]))
+   [io.swagger.v3.oas.models Operation PathItem]
+   [io.swagger.v3.oas.models.media StringSchema]
+   [io.swagger.v3.oas.models.parameters PathParameter QueryParameter RequestBody]))
 
 (t/deftest test-find-first
   (t/testing "finds the first matching pred"
@@ -33,32 +33,32 @@
                   (.setName "id")
                   (.setSchema (StringSchema.)))]
       (t/is (= {:name "id"
-                :in   :query}
+                :in :query}
                (m/->params param))))))
 
 (t/deftest test->operation
   (t/testing "creating an operation map"
-    (let [param     (doto (PathParameter.)
-                      (.setName "id")
-                      (.setSchema (StringSchema.)))
+    (let [param (doto (PathParameter.)
+                  (.setName "id")
+                  (.setSchema (StringSchema.)))
           operation (doto (Operation.)
                       (.setSummary "this is a test op")
                       (.setParameters [param])
                       (.setOperationId "TestOp")
                       (.setRequestBody (RequestBody.)))]
-      (t/is (= {:TestOp {:summary      "this is a test op"
-                         :method       :get
-                         :path         "/test/path"
-                         :params       [{:name "id"
-                                         :in   :path}]
+      (t/is (= {:TestOp {:summary "this is a test op"
+                         :method :get
+                         :path "/test/path"
+                         :params [{:name "id"
+                                   :in :path}]
                          :request-body true}}
                (m/->operation "/test/path" "GET" operation))))))
 
 (t/deftest test->operations
   (t/testing "creating operations"
-    (let [param     (doto (PathParameter.)
-                      (.setName "id")
-                      (.setSchema (StringSchema.)))
+    (let [param (doto (PathParameter.)
+                  (.setName "id")
+                  (.setSchema (StringSchema.)))
           operation (doto (Operation.)
                       (.setSummary "this is a test op")
                       (.setParameters [param])
@@ -66,8 +66,8 @@
           path-item (doto (PathItem.)
                       (.setGet operation))]
       (t/is (= [{:containers {:TestOp {:summary "this is a test op"
-                                       :method  :get
-                                       :path    "/containers/json"
-                                       :params  [{:name "id"
-                                                  :in   :path}]}}}]
+                                       :method :get
+                                       :path "/containers/json"
+                                       :params [{:name "id"
+                                                 :in :path}]}}}]
                (m/->operations nil "/containers/json" path-item))))))

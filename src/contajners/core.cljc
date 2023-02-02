@@ -1,8 +1,8 @@
 (ns contajners.core
   (:require
-    #?(:bb [contajners.sci-runtime :as rt]
-       :clj [contajners.jvm-runtime :as rt])
-    [contajners.impl :as impl]))
+   #?(:bb [contajners.sci-runtime :as rt]
+      :clj [contajners.jvm-runtime :as rt])
+   [contajners.impl :as impl]))
 
 (defn categories
   "Returns the available categories for an engine at a specified verison.
@@ -35,16 +35,16 @@
                 mtls]}
         conn]
     {:category category
-     :api      (-> api
-                   category
-                   (merge (select-keys api [:contajners/doc-url])))
-     :conn     (rt/client uri
-                          {:connect-timeout-ms connect-timeout
-                           :read-timeout-ms    read-timeout
-                           :write-timeout-ms   write-timeout
-                           :call-timeout-ms    call-timeout
-                           :mtls               mtls})
-     :version  version}))
+     :api (-> api
+              category
+              (merge (select-keys api [:contajners/doc-url])))
+     :conn (rt/client uri
+                      {:connect-timeout-ms connect-timeout
+                       :read-timeout-ms read-timeout
+                       :write-timeout-ms write-timeout
+                       :call-timeout-ms call-timeout
+                       :mtls mtls})
+     :version version}))
 
 (defn ops
   "Returns the supported operations for a client."
@@ -79,21 +79,21 @@
     (let [request-params (reduce (partial impl/gather-params params)
                                  {}
                                  (:params operation))
-          request        {:client               conn
-                          :method               (:method operation)
-                          :path                 (-> operation
-                                                    :path
-                                                    (impl/interpolate-path (:path request-params))
-                                                    (as-> path (str "/" version path)))
-                          :headers              (:header request-params)
-                          :query-params         (:query request-params)
-                          :body                 data
-                          :as                   as
-                          :throw-exceptions     throw-exceptions
-                          :throw-entire-message throw-entire-message}
-          response       (-> request
-                             (impl/maybe-serialize-body)
-                             (rt/request))]
+          request {:client conn
+                   :method (:method operation)
+                   :path (-> operation
+                             :path
+                             (impl/interpolate-path (:path request-params))
+                             (as-> path (str "/" version path)))
+                   :headers (:header request-params)
+                   :query-params (:query request-params)
+                   :body data
+                   :as as
+                   :throw-exceptions throw-exceptions
+                   :throw-entire-message throw-entire-message}
+          response (-> request
+                       (impl/maybe-serialize-body)
+                       (rt/request))]
       (case as
         (:socket :stream) response
         (impl/try-json-parse response)))
@@ -107,16 +107,16 @@
   (categories :docker "v1.41")
 
   (def client
-    (client {:engine   :podman
-             :version  "v3.2.3"
+    (client {:engine :podman
+             :version "v3.2.3"
              :category :libpod/images
-             :conn     {:uri "http://localhost:8080"}}))
+             :conn {:uri "http://localhost:8080"}}))
 
   (def d-client
-    (client {:engine   :docker
-             :version  "v1.41"
+    (client {:engine :docker
+             :version "v1.41"
              :category :containers
-             :conn     {:uri "unix:///var/run/docker.sock"}}))
+             :conn {:uri "unix:///var/run/docker.sock"}}))
 
   (ops client)
 
@@ -127,30 +127,30 @@
   (doc d-client :ContainerCreate)
 
   (invoke client
-          {:op     :ImageListLibpod
+          {:op :ImageListLibpod
            :params {:all true}})
 
   (invoke d-client
-          {:op     :ContainerList
+          {:op :ContainerList
            :params {:all true}})
 
   (def d-images
-    (client {:engine   :docker
-             :version  "v1.41"
+    (client {:engine :docker
+             :version "v1.41"
              :category :images
-             :conn     {:uri "unix:///var/run/docker.sock"}}))
+             :conn {:uri "unix:///var/run/docker.sock"}}))
 
   (ops d-images)
 
   (doc d-images :ImageCreate)
 
   (invoke d-images
-          {:op     :ImageCreate
+          {:op :ImageCreate
            :params {:fromImage "busybox:musl"}})
 
   (invoke d-client
-          {:op                   :ContainerCreate
-           :params               {:name "conny"}
-           :data                 {:Image "busybox:musl"}
-           :throw-exceptions     true
+          {:op :ContainerCreate
+           :params {:name "conny"}
+           :data {:Image "busybox:musl"}
+           :throw-exceptions true
            :throw-entire-message true}))
