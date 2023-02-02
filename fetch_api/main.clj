@@ -1,18 +1,18 @@
 (ns main
   (:require
-    [clojure.java.io :as io]
-    [clojure.string :as s]
-    [java-http-clj.core :as http])
+   [babashka.http-client :as http]
+   [clojure.java.io :as io]
+   [clojure.string :as s])
   (:import
-    [java.util.concurrent Executors Future]
-    [io.swagger.parser OpenAPIParser]
-    [io.swagger.v3.oas.models Operation PathItem]
-    [io.swagger.v3.oas.models.parameters Parameter]
-    [io.swagger.v3.parser.core.models ParseOptions]))
+   [io.swagger.parser OpenAPIParser]
+   [io.swagger.v3.oas.models Operation PathItem]
+   [io.swagger.v3.oas.models.parameters Parameter]
+   [io.swagger.v3.parser.core.models ParseOptions]
+   [java.util.concurrent Executors Future]))
 
 (def sources
-  {:docker {:url      "https://docs.docker.com/engine/api/%s.yaml"
-            :doc-url  "https://docs.docker.com/engine/api/%s/#operation/%s"
+  {:docker {:url "https://docs.docker.com/engine/api/%s.yaml"
+            :doc-url "https://docs.docker.com/engine/api/%s/#operation/%s"
             :versions ["v1.25"
                        "v1.26"
                        "v1.27"
@@ -30,33 +30,34 @@
                        "v1.39"
                        "v1.40"
                        "v1.41"]}
-   :podman {:url        "https://storage.googleapis.com/libpod-master-releases/swagger-%s.yaml"
-            :doc-url    "https://docs.podman.io/en/%s/_static/api.html#operation/%s"
+   :podman {:url "https://storage.googleapis.com/libpod-master-releases/swagger-%s.yaml"
+            :doc-url "https://docs.podman.io/en/%s/_static/api.html#operation/%s"
             :namespaces #{"/libpod"}
-            :versions   ["v3.1.0"
-                         "v3.1.1"
-                         "v3.1.2"
-                         "v3.2.0"
-                         "v3.2.1"
-                         "v3.2.2"
-                         "v3.2.3"
-                         "v3.3.0"
-                         "v3.3.1"
-                         "v3.4.0"
-                         "v3.4.1"
-                         "v3.4.2"
-                         "v3.4.3"
-                         "v3.4.4"
-                         "v4.0.0"
-                         "v4.0.1"
-                         "v4.0.2"
-                         "v4.0.3"
-                         "v4.1.0"
-                         "v4.1.1"
-                         "v4.2.0"
-                         "v4.2.1"
-                         "v4.3.0"
-                         "v4.3.1"]}})
+            :versions ["v3.1.0"
+                       "v3.1.1"
+                       "v3.1.2"
+                       "v3.2.0"
+                       "v3.2.1"
+                       "v3.2.2"
+                       "v3.2.3"
+                       "v3.3.0"
+                       "v3.3.1"
+                       "v3.4.0"
+                       "v3.4.1"
+                       "v3.4.2"
+                       "v3.4.3"
+                       "v3.4.4"
+                       "v4.0.0"
+                       "v4.0.1"
+                       "v4.0.2"
+                       "v4.0.3"
+                       "v4.1.0"
+                       "v4.1.1"
+                       "v4.2.0"
+                       "v4.2.1"
+                       "v4.3.0"
+                       "v4.3.1"
+                       "v4.4.0"]}})
 
 (def resource-path "resources/contajners")
 
@@ -86,14 +87,14 @@
   The set of namespaces, if passed, determines if the category is to be namespaced. eg /libpod/containers and /containers
   The namespace is useful to distinguish similarly named ops in APIs supporting compatibility with other engines."
   [path namespaces]
-  (let [matched  (find-first #(s/starts-with? path %) namespaces)
-        nspace   (when matched
-                   (-> matched
-                       (subs 1)
-                       (s/replace "/" ".")))
-        path     (if matched
-                   (s/replace-first path matched "")
-                   path)
+  (let [matched (find-first #(s/starts-with? path %) namespaces)
+        nspace (when matched
+                 (-> matched
+                     (subs 1)
+                     (s/replace "/" ".")))
+        path (if matched
+               (s/replace-first path matched "")
+               path)
         category (-> path
                      (subs 1)
                      (s/split #"/")
@@ -107,18 +108,18 @@
   "Given a io.swagger.v3.oas.models.parameters.Parameter, returns a map of necessary keys."
   [^Parameter param]
   {:name (.getName param)
-   :in   (keyword (.getIn param))})
+   :in (keyword (.getIn param))})
 
 (defn ->operation
   "Given a path, http method and an io.swagger.v3.oas.models.Operation, returns a map of operation id and necessary keys."
   [path method ^Operation operation]
-  (let [op           {:summary (.getSummary operation)
-                      :method  (-> method
-                                   str
-                                   s/lower-case
-                                   keyword)
-                      :path    path
-                      :params  (map ->params (.getParameters operation))}
+  (let [op {:summary (.getSummary operation)
+            :method (-> method
+                        str
+                        s/lower-case
+                        keyword)
+            :path path
+            :params (map ->params (.getParameters operation))}
         request-body (.getRequestBody operation)]
     {(keyword (.getOperationId operation)) (if request-body
                                              (assoc op :request-body true)
@@ -150,13 +151,14 @@
 (defn fetch-spec
   "Downloads the spec from the URL and version provided."
   [url-template version]
-  (let [{:keys [status body]} (http/get (format url-template version))]
+  (let [{:keys [status body]} (http/get (format url-template version)
+                                        {:throw false})]
     (if (>= status 400)
       (binding [*out* *err*]
         (println
-          (format "Error fetching version %s: %s"
-                  version
-                  body)))
+         (format "Error fetching version %s: %s"
+                 version
+                 body)))
       body)))
 
 (defn process-spec
@@ -175,7 +177,7 @@
                      version)]
     (with-open [w (io/writer path)]
       (binding [*print-length* false
-                *out*          w]
+                *out* w]
         (pr spec)))))
 
 (defn ensure-resource-dirs
@@ -187,23 +189,23 @@
 (defn run
   "Driver fn, iterates over the sources, downloads, processes and saves as resources."
   [& _]
-  (let [executor      (Executors/newVirtualThreadPerTaskExecutor)
+  (let [executor (Executors/newVirtualThreadPerTaskExecutor)
         download-info (for [[engine {:keys [url doc-url namespaces versions]}] sources
-                            version                                            versions]
-                        {:engine     engine
-                         :url        url
-                         :doc-url    doc-url
-                         :version    version
+                            version versions]
+                        {:engine engine
+                         :url url
+                         :doc-url doc-url
+                         :version version
                          :namespaces namespaces})
-        fetchers      (map #(fn []
-                              (fetch-spec (% :url) (% :version)))
-                           download-info)
-        fetched       (->> (.invokeAll executor fetchers)
-                           (map #(.get ^Future %))
-                           (filter some?))
-        processed     (pmap #(process-spec %1 (%2 :doc-url) (%2 :namespaces))
-                            fetched
-                            download-info)]
+        fetchers (map #(fn []
+                         (fetch-spec (% :url) (% :version)))
+                      download-info)
+        fetched (->> (.invokeAll executor fetchers)
+                     (map #(.get ^Future %))
+                     (filter some?))
+        processed (pmap #(process-spec %1 (%2 :doc-url) (%2 :namespaces))
+                        fetched
+                        download-info)]
     (run! ensure-resource-dirs (keys sources))
     (->> (map #(fn []
                  (write-spec %1 (%2 :engine) (%2 :version)))
