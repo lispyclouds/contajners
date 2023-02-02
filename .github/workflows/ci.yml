@@ -1,6 +1,7 @@
 name: Tests
 
-on: [push]
+on:
+  - push
 
 jobs:
   build:
@@ -16,10 +17,11 @@ jobs:
           distribution: "temurin"
           java-version: "19"
 
-      - name: "Prepare Clojure CLI"
+      - name: "Prepare Clojure"
         uses: "DeLaGuardo/setup-clojure@master"
         with:
           cli: "latest"
+          bb: "latest"
 
       - name: "Apply Cache"
         uses: "actions/cache@v3"
@@ -28,11 +30,6 @@ jobs:
             ~/.m2/repository
           key: "contajners-${{ hashFiles('deps.edn') }}"
           restore-keys: "$contajners-"
-
-      - name: Setup Babashka
-        run: |
-          curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install
-          sudo bash install
 
       - name: "Run JVM tests"
         run: "bb test:jvm"
