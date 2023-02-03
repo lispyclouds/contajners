@@ -36,12 +36,10 @@
   [uri opts]
   (http/client uri
                (assoc opts
-                      :mode
-                      :recreate
-                      :builder-fn
-                      (if-let [mtls (:mtls opts)]
-                        (make-builder-fn mtls)
-                        identity))))
+                      :mode :recreate
+                      :builder-fn (if-let [mtls (:mtls opts)]
+                                    (make-builder-fn mtls)
+                                    identity))))
 
 (defn request
   "Internal fn to perform the request."

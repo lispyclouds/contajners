@@ -8,36 +8,20 @@
   [^String uri]
   (= "unix" (.getScheme (URI. uri))))
 
-(defn add-curl-opts
-  [uri connect-timeout call-timeout mtls]
-  (let [unix (unix-socket? uri)
-        raw-args (if connect-timeout
-                   ["--connect-timeout"
-                    (-> (/ connect-timeout 1000)
-                        int
-                        str)]
-                   [])
-        raw-args (if call-timeout
-                   (conj raw-args
-                         "--max-timeout"
-                         (-> (/ call-timeout 1000)
-                             int
-                             str))
-                   raw-args)
-        raw-args (if unix
-                   (conj raw-args "--unix-socket" (.getPath (URI. uri)))
-                   raw-args)
-        raw-args (if mtls
-                   (conj raw-args "--cacert" (:ca mtls) "--key" (:key mtls) "--cert" (:cert mtls))
-                   raw-args)]
-    {:raw-args raw-args
-     :url (if unix
-            "http://localhost"
-            uri)}))
+(defn as-sec-str
+  [ms]
+  (-> (/ ms 1000) int str))
 
 (defn client
   [uri {:keys [connect-timeout-ms call-timeout-ms mtls]}]
-  (add-curl-opts uri connect-timeout-ms call-timeout-ms mtls))
+  (prn uri connect-timeout-ms call-timeout-ms mtls)
+  (let [unix (unix-socket? uri)]
+    {:raw-args (cond-> []
+                 connect-timeout-ms (conj "--connect-timeout" (as-sec-str connect-timeout-ms))
+                 call-timeout-ms (conj "--max-timeout" (as-sec-str call-timeout-ms))
+                 unix (conj "--unix-socket" (.getPath (URI. uri)))
+                 mtls (conj "--cacert" (:ca mtls) "--key" (:key mtls) "--cert" (:cert mtls)))
+     :url (if unix "http://localhost" uri)}))
 
 (defn adapt-multi-params
   "Adapts the params to support keys having multiple values for bb curl.
@@ -49,9 +33,7 @@
   (->> query-params
        (mapcat (fn [[k v]]
                  (if (sequential? v)
-                   (map #(vector k
-                                 %)
-                        v)
+                   (map #(vector k %) v)
                    [[k v]])))
        (into [])))
 
@@ -64,9 +46,7 @@
        :query-params (adapt-multi-params query-params)
        :headers (adapt-multi-params headers)
        :body body
-       :as (if (= :data as)
-             nil
-             as)
+       :as (if (= :data as) nil as)
        :throw throw-exceptions}
       (into (update-in client [:url] str path))
       (curl/request)
@@ -76,8 +56,6 @@
   (adapt-multi-params {:a [1 2 3] :b 42})
 
   (adapt-multi-params {:a 41 :b 42})
-
-  (add-curl-opts "unix:///var/run/docker.sock" 1000 2000 "/v1.41/containers/json")
 
   (request
    {:method :get
