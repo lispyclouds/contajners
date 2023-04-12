@@ -296,6 +296,25 @@ When `:throw-exceptions` is passed as `true` and the `:as` is set to `:stream`, 
     (-> e ex-data :body slurp println))) ; Prints out the body of error from docker.
 ```
 
+#### Using the Podman specific API
+
+Podman via its REST interface supports both the docker compatible API as well as its own specific one. When using Podman as the driver, use `:libpod/<category>` instead of `:<category>` to access that.
+
+Example:
+```clojure
+; Docker compatible API
+(def dnetworks (c/client {:engine   :podman
+                          :category :networks
+                          :conn     {:uri "http://localhost:8080"}
+                          :version  "v4.4.4"}))
+
+; Podman specific API
+(def pnetworks (c/client {:engine   :podman
+                          :category :libpod/networks
+                          :conn     {:uri "http://localhost:8080"}
+                          :version  "v4.4.4"}))
+```
+
 And anything else is possible!
 
 ### Adding support for a new container engine
