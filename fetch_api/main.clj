@@ -8,7 +8,7 @@
    [io.swagger.v3.oas.models Operation PathItem]
    [io.swagger.v3.oas.models.parameters Parameter]
    [io.swagger.v3.parser.core.models ParseOptions]
-   [java.util.concurrent Executors Future]))
+   [java.util.concurrent Executors]))
 
 (def sources
   {:docker {:url "https://docs.docker.com/engine/api/%s.yaml"
@@ -69,9 +69,7 @@
 
 (defn find-first
   [pred coll]
-  (some #(when (pred %)
-           %)
-        coll))
+  (some #(when (pred %) %) coll))
 
 ;; TODO: Better?
 (defn ->category
@@ -161,10 +159,7 @@
                                         {:throw false})]
     (if (>= status 400)
       (binding [*out* *err*]
-        (println
-         (format "Error fetching version %s: %s"
-                 version
-                 body)))
+        (println (format "Error fetching version %s: %s" version body)))
       body)))
 
 (defn process-spec
@@ -186,7 +181,7 @@
                 *out* w]
         (pr spec)))))
 
-(defn ensure-resource-dirs
+(defn ensure-engine-dirs
   [engine]
   (let [path (io/file (str resource-path "/" (name engine)))]
     (when-not (.exists path)
@@ -203,22 +198,20 @@
                          :doc-url doc-url
                          :version version
                          :namespaces namespaces})
-        fetchers (map #(fn []
-                         (fetch-spec (% :url) (% :version)))
+        fetchers (map #(fn [] (fetch-spec (% :url) (% :version)))
                       download-info)
         fetched (->> (.invokeAll executor fetchers)
-                     (map #(.get ^Future %))
+                     (map deref)
                      (filter some?))
         processed (pmap #(process-spec %1 (%2 :doc-url) (%2 :namespaces))
                         fetched
                         download-info)]
-    (run! ensure-resource-dirs (keys sources))
-    (->> (map #(fn []
-                 (write-spec %1 (%2 :engine) (%2 :version)))
+    (run! ensure-engine-dirs (keys sources))
+    (->> (map #(fn [] (write-spec %1 (%2 :engine) (%2 :version)))
               processed
               download-info)
          (.invokeAll executor)
-         (run! #(.get ^Future %)))))
+         (run! deref))))
 
 (comment
   (set! *warn-on-reflection* true)
