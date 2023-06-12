@@ -2,6 +2,73 @@
 
 ### Sample code for common scenarios
 
+#### Connect to docker socket on remote hosts
+
+We are going to talk about connecting to a remote Docker endpoint using SSH.
+This guide is for babashka, but should be easy to adapt for clojure/nbb.
+
+For local unix socket connections to Docker endpoint, you can use the path to the file (unix socket, e.g. `unix:///var/run/docker.sock`).
+But sometimes you have a swarm cluster / Docker node on remote hosts.
+Accessing the docker endpoint remotely involves using either an ssh connection or exposing Docker endpoint as a TCP service (preferably using TLS certificates).
+Most people avoid dealing with TLS certificates becasue the process can be quite complicated.
+So they opt to expose Docker endpoint via unix sockets (which is not exposed via internet) and provide access via SSH to the node. See https://docs.docker.com/config/daemon/remote-access/ for more details.
+
+docker-cli has a feature called [docker contexts](https://docs.docker.com/engine/context/working-with-contexts/) that allows users to access remote Docker daemons using ssh and unix sockets.
+
+The process relies on using SSH local port forwarding (`man ssh`).
+* You open an SSH connection to a remote host and also bind a local port / unix socket.
+* Clients connect to local port / unix socket and SSH will forward all information to remote port / unix socket.
+
+Using ssh command it looks like this:
+```shell
+ssh dev1.example.com -L /tmp/my-local-docker.sock:/var/run/docker.sock
+```
+Once you run this you can connect to unix socket `/tmp/my-local-docker.sock` on your local machine and traffic will
+be directed to the remote host over an encrypted channel.
+
+Using contajners with babashka and [bbssh](https://github.com/epiccastle/bbssh) we can achieve the same thing.
+
+
+```clojure
+#!/usr/bin/env bb
+(ns bb-ssh
+  (:require [babashka.pods :as pods]
+            [babashka.deps :as deps]))
+
+;; dynamically add bbssh and contajners to bb classpath
+(pods/load-pod 'epiccastle/bbssh "0.5.0")
+(deps/add-deps '{:deps {org.clojars.lispyclouds/contajners {:mvn/version "1.0.0"}}})
+
+;; require the ns that we need from the libs
+(require '[pod.epiccastle.bbssh.core :as bbssh]
+         '[contajners.core :as c])
+
+;; notice this is a rich comment
+(comment
+
+  ;; check bbssh for more options and configurations
+  (let [port 38021
+        session (bbssh/ssh "dev1.example.com"
+                           {:username "ubuntu"
+                            :identity "/home/ieugen/.ssh/id_ed25519"
+                            :bind-address "127.0.0.1"        ;; address to bind to on the local machine
+                            :local-port  port              ;; the port to lisen on locally
+                            :remote-unix-socket "/var/run/docker.sock"  ;; unix socket on the remote network
+                            :connect-timeout 30000         ;; timeout for the remote connection (ms)
+                            })
+        images-docker (c/client {:engine   :docker
+                                 :category :images
+                                 :version  "v1.42"
+                                 :conn     {:uri (str "http://127.0.0.1:" port)}})]
+    (println "Remote unix socket available as TCP port" port)
+    ;; (println images-docker)
+    (println (c/invoke images-docker {:op :ImageList})))
+  )
+```
+
+Original issue for this feature in [bbssh](https://github.com/epiccastle/bbssh/issues/12).
+
+
 #### Pulling an image
 ```clojure
 (def images-docker (c/client {:engine   :docker
