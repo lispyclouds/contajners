@@ -68,6 +68,7 @@ Using contajners with babashka and [bbssh](https://github.com/epiccastle/bbssh) 
 
 Original issue for this feature in [bbssh](https://github.com/epiccastle/bbssh/issues/12).
 
+Thanks [ieugen](https://github.com/ieugen) for this example!
 
 #### Pulling an image
 ```clojure
