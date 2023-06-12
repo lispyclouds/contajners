@@ -69,6 +69,9 @@ If using docker, the service is assumed to be running on `unix:///var/run/docker
 
 If using podman, the service is assumed to be running on `http://localhost:8080`
 
+NOTE: Advanced tip: When using docker, you can access a unix socket on a remote server by using SSH local port forwarding (see `man ssh`).
+When using `contajners` with `babashka` this can be done via [bbssh](https://github.com/epiccastle/bbssh/issues/12#issuecomment-1586938532).
+
 ```clojure
 user=> (require '[contajners.core :as c])
 nil
