@@ -128,11 +128,11 @@ Thanks [@davidpham87](https://github.com/davidpham87) for this example!
 (defn react-to-stream
   [stream reaction-fn]
   (future
-    (with-open [rdr (clojure.java.io/reader stream)]
-      (loop [r (java.io.BufferedReader. rdr)]
+    (with-open [r (clojure.java.io/reader stream)]
+      (loop []
         (when-let [line (.readLine r)]
           (reaction-fn line)
-          (recur r))))))
+          (recur))))))
 
 (def log-stream (c/invoke containers-docker {:op     :ContainerLogs
                                              :params {:id     "conny"
