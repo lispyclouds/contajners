@@ -11,8 +11,8 @@
    [java.util.concurrent Executors]))
 
 (def sources
-  {:docker {:url "https://docs.docker.com/engine/api/%s.yaml"
-            :doc-url "https://docs.docker.com/engine/api/%s/#operation/%s"
+  {:docker {:url "https://docs.docker.com/reference/engine/%s.yaml"
+            :doc-url "https://docs.docker.com/engine/api/%s/#tag/%s"
             :versions ["v1.25"
                        "v1.26"
                        "v1.27"
@@ -30,7 +30,8 @@
                        "v1.39"
                        "v1.40"
                        "v1.41"
-                       "v1.42"]}
+                       "v1.42"
+                       "v1.43"]}
    :podman {:url "https://storage.googleapis.com/libpod-master-releases/swagger-%s.yaml"
             :doc-url "https://docs.podman.io/en/%s/_static/api.html#operation/%s"
             :namespaces #{"/libpod"}
@@ -65,7 +66,8 @@
                        "v4.4.4"
                        "v4.5.0"
                        "v4.5.1"
-                       "v4.6.0"]}})
+                       "v4.6.0"
+                       "v4.6.1"]}})
 
 (def resource-path "resources/contajners")
 
