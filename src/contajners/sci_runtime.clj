@@ -14,11 +14,10 @@
 
 (defn client
   [uri {:keys [connect-timeout-ms call-timeout-ms mtls]}]
-  (prn uri connect-timeout-ms call-timeout-ms mtls)
   (let [unix (unix-socket? uri)]
     {:raw-args (cond-> []
                  connect-timeout-ms (conj "--connect-timeout" (as-sec-str connect-timeout-ms))
-                 call-timeout-ms (conj "--max-timeout" (as-sec-str call-timeout-ms))
+                 call-timeout-ms (conj "--max-time" (as-sec-str call-timeout-ms))
                  unix (conj "--unix-socket" (.getPath (URI. uri)))
                  mtls (conj "--cacert" (:ca mtls) "--key" (:key mtls) "--cert" (:cert mtls)))
      :url (if unix "http://localhost" uri)}))
