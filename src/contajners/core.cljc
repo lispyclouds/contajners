@@ -108,9 +108,9 @@
 
   (def client
     (client {:engine :podman
-             :version "v3.2.3"
+             :version "v4.7.0"
              :category :libpod/images
-             :conn {:uri "http://localhost:8080"}}))
+             :conn {:uri "unix:///tmp/pod.sock"}}))
 
   (def d-client
     (client {:engine :docker

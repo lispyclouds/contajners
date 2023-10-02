@@ -1,6 +1,6 @@
 {:paths ["src" "resources"]
  :deps {org.clojure/data.json {:mvn/version "2.4.0"}
-        unixsocket-http/unixsocket-http {:mvn/version "1.0.12"}
+        unixsocket-http/unixsocket-http {:mvn/version "1.0.13"}
         into-docker/pem-reader {:mvn/version "1.0.2"}
         com.squareup.okhttp3/okhttp-tls {:mvn/version "4.11.0"}}
  :aliases {:fetch-api {:replace-paths ["fetch_api"]
