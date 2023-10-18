@@ -5,6 +5,6 @@
   :license      {:name "MIT"
                  :url  "https://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/data.json "2.4.0"]
-                 [unixsocket-http/unixsocket-http "1.0.13"]
-                 [com.squareup.okhttp3/okhttp-tls "4.11.0"]
+                 [unixsocket-http/unixsocket-http "1.0.14"]
+                 [com.squareup.okhttp3/okhttp-tls "4.12.0"]
                  [into-docker/pem-reader "1.0.2"]])
