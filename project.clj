@@ -4,7 +4,7 @@
   :description  "An idiomatic, data-driven, REPL friendly clojure client for OCI container engines"
   :license      {:name "MIT"
                  :url  "https://opensource.org/licenses/MIT"}
-  :dependencies [[org.clojure/data.json "2.4.0"]
+  :dependencies [[org.clojure/data.json "2.5.0"]
                  [unixsocket-http/unixsocket-http "1.0.14"]
                  [com.squareup.okhttp3/okhttp-tls "4.12.0"]
                  [into-docker/pem-reader "1.0.2"]])
