@@ -78,7 +78,8 @@
                        "v4.8.3"
                        "v4.9.0"
                        "v4.9.1"
-                       "v4.9.2"]}})
+                       "v4.9.2"
+                       "v4.9.3"]}})
 
 (def resource-path "resources/contajners")
 
