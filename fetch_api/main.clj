@@ -32,7 +32,8 @@
                        "v1.41"
                        "v1.42"
                        "v1.43"
-                       "v1.44"]}
+                       "v1.44"
+                       "v1.45"]}
    :podman {:url "https://storage.googleapis.com/libpod-master-releases/swagger-%s.yaml"
             :doc-url "https://docs.podman.io/en/%s/_static/api.html#operation/%s"
             :namespaces #{"/libpod"}
