@@ -278,6 +278,18 @@ More examples of low level calls (these are not experimental, just here to demo 
              :body   (-> "src.tar.gz"
                           io/file
                           io/input-stream)})
+
+;; Reminder: You can do the same using the non-experimental container api
+(c/invoke containers-docker
+          {:op                   :PutContainerArchive
+           :params               {:id   "conny"
+                                  :path "/root/src"}
+           :data                 (->  "src.tar.gz"
+                                      io/file
+                                      io/input-stream)
+           :as                   :stream
+           :throw-exceptions     true
+           :throw-entire-message true})
 ```
 
 #### Reading a streaming output in case of an exception being thrown
