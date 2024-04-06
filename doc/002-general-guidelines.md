@@ -232,7 +232,7 @@ Thanks [@leahneukirchen](https://github.com/leahneukirchen) for this!
 
 #### Accessing undocumented/experimental APIs
 There are some cases where you may need access to an API that is either experimental or is not in the swagger docs.
-Docker [checkpoint](https://docs.docker.com/engine/reference/commandline/checkpoint/) is one such example. Thanks [@mk](https://github.com/mk) for bringing it up!
+Docker [checkpoint](https://dcs.docker.com/engine/reference/commandline/checkpoint/) is one such example. Thanks [@mk](https://github.com/mk) for bringing it up!
 
 Since this uses the published APIs from the swagger spec, the way to access them is to use the lower level fn `request` from either the `contajners.jvm-runtime` or `contajners.sci-runtime` ns. The caveat is the **response will be totally raw(data, stream or the socket itself)**.
 
@@ -263,7 +263,7 @@ client method path headers query-params body as throw-exceptions throw-entire-me
              :method :get})
 ```
 
-More examples of low level calls:
+More examples of low level calls (these are not experimental, just here to demo the low level API interactions):
 ```clojure
 ;; Ping the server
 (rt/request {:client (rt/client "unix:///var/run/docker.sock" {})
