@@ -228,6 +228,36 @@ Whenever the docs mention about an `Array of <type>` you can send a collection o
 
 Thanks [@leahneukirchen](https://github.com/leahneukirchen) for this!
 
+#### Get an archive of a filesystem resource in a container
+Get a tar archive of a resource in the filesystem of container id.
+
+```clojure
+(c/invoke containers-docker
+          {:op                   :ContainerArchive
+           :params               {:id   "conny"
+                                  :path "/root/src"}
+           :as                   :stream
+           :throw-exceptions     true
+           :throw-entire-message true})
+```
+
+#### Extract an archive of files or folders to a directory in a container
+Upload a tar archive to be extracted to a path in the filesystem of container id. `path` parameter is asserted to be a directory.
+
+```clojure
+(c/invoke containers-docker
+          {:op                   :PutContainerArchive
+           :params               {:id   "conny"
+                                  :path "/root/src"}
+           :data                 (->  "src.tar.gz"
+                                      io/file
+                                      io/input-stream)
+           :as                   :stream
+           :throw-exceptions     true
+           :throw-entire-message true})
+```
+Thanks [@rafaeldelboni](https://github.com/rafaeldelboni) for this!
+
 ### Not so common scenarios
 
 #### Accessing undocumented/experimental APIs
@@ -278,18 +308,6 @@ More examples of low level calls (these are not experimental, just here to demo 
              :body   (-> "src.tar.gz"
                           io/file
                           io/input-stream)})
-
-;; Reminder: You can do the same using the non-experimental container api
-(c/invoke containers-docker
-          {:op                   :PutContainerArchive
-           :params               {:id   "conny"
-                                  :path "/root/src"}
-           :data                 (->  "src.tar.gz"
-                                      io/file
-                                      io/input-stream)
-           :as                   :stream
-           :throw-exceptions     true
-           :throw-entire-message true})
 ```
 
 #### Reading a streaming output in case of an exception being thrown
