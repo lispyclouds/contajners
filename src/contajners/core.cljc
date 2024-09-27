@@ -59,10 +59,7 @@
   (some-> api
           op
           (select-keys [:summary])
-          (assoc :doc-url
-                 (format (:contajners/doc-url api)
-                         version
-                         (name op)))))
+          (assoc :doc-url (format (:contajners/doc-url api) version))))
 
 (defn invoke
   "Performs the operation with the specified client and a map of options.
