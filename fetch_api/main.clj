@@ -91,7 +91,8 @@
                        "v5.1.1"
                        "v5.2.0"
                        "v5.2.2"
-                       "v5.2.3"]}})
+                       "v5.2.3"
+                       "v5.2.4"]}})
 
 (def resource-path "resources/contajners")
 
