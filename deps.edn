@@ -4,13 +4,13 @@
         into-docker/pem-reader {:mvn/version "1.0.2"}
         com.squareup.okhttp3/okhttp-tls {:mvn/version "4.12.0"}}
  :aliases {:fetch-api {:replace-paths ["fetch_api"]
-                       :extra-deps {io.swagger.parser.v3/swagger-parser {:mvn/version "2.1.22"}
+                       :extra-deps {io.swagger.parser.v3/swagger-parser {:mvn/version "2.1.23"}
                                     org.babashka/http-client {:mvn/version "0.4.21"}}
                        :exec-fn main/run
                        :jvm-opts ["--enable-preview"]}
            :test {:extra-paths ["test" "fetch_api"]
                   :extra-deps {io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
-                               io.swagger.parser.v3/swagger-parser {:mvn/version "2.1.22"}
+                               io.swagger.parser.v3/swagger-parser {:mvn/version "2.1.23"}
                                org.babashka/http-client {:mvn/version "0.4.21"}}
                   :main-opts ["-m" "cognitect.test-runner"]
                   :exec-fn cognitect.test-runner.api/test}}}
