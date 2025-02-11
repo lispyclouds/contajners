@@ -14,6 +14,6 @@
                                org.babashka/http-client {:mvn/version "0.4.22"}}
                   :main-opts ["-m" "cognitect.test-runner"]
                   :exec-fn cognitect.test-runner.api/test}
-           :build {:deps {io.github.clojure/tools.build {:git/tag "v0.10.6" :git/sha "52cf7d6"}
+           :build {:deps {io.github.clojure/tools.build {:git/tag "v0.10.7" :git/sha "573711e"}
                           slipset/deps-deploy {:mvn/version "0.2.2"}}
                    :ns-default build}}}
