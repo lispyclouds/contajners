@@ -5,7 +5,7 @@
 (t/deftest docker-tests
   (let [image "busybox:musl"
         client (c/client {:engine :docker
-                          :version "v1.41"
+                          :version "v1.45"
                           :category :images
                           :conn {:uri "unix:///var/run/docker.sock"}})]
     (t/testing "pull an image"
