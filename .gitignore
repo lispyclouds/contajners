@@ -1,5 +1,5 @@
 pom.xml
-pom.xml.asc
+*.asc
 *.jar
 *.class
 /lib/
