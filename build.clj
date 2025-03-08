@@ -24,7 +24,12 @@
                 :lib lib
                 :version version
                 :basis basis
-                :src-dirs src-dirs})
+                :src-dirs src-dirs
+                :pom-data [[:licenses
+                            [:license
+                             [:name "MIT"]
+                             [:url "https://opensource.org/license/mit"]
+                             [:distribution "repo"]]]]})
   (b/copy-dir {:src-dirs src-dirs
                :target-dir class-dir})
   (b/jar {:class-dir class-dir
