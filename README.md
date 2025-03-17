@@ -4,7 +4,7 @@
 [![project chat](https://img.shields.io/badge/slack-join_chat-brightgreen.svg)](https://clojurians.slack.com/messages/C0PME9N9X)
 [![Clojars Project](https://img.shields.io/clojars/v/org.clojars.lispyclouds/contajners.svg)](https://clojars.org/org.clojars.lispyclouds/contajners)
 
-[![bb compatible](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://babashka.org)
+[![bb compatible](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://book.babashka.org#badges)
 
 An idiomatic, data-driven, REPL friendly Clojure client for [OCI](https://opencontainers.org/) complaint container engines inspired from Cognitect's AWS [client](https://github.com/cognitect-labs/aws-api).
 
