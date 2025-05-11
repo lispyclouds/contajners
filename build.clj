@@ -25,8 +25,11 @@
                 :version version
                 :basis basis
                 :src-dirs src-dirs
-                :pom-data [[:author "Rahul De <rahul080327@gmail.com>"]
-                           [:url "https://github.com/lispyclouds/contajners"]
+                :pom-data [[:url "https://github.com/lispyclouds/contajners"]
+                           [:developers
+                            [:developer [:name "Rahul De"]]]
+                           [:scm
+                            [:url "https://github.com/lispyclouds/contajners"]]
                            [:licenses
                             [:license
                              [:name "MIT"]
