@@ -2,7 +2,7 @@
  :deps {org.clojure/data.json {:mvn/version "2.5.1"}
         unixsocket-http/unixsocket-http {:mvn/version "1.0.14"}
         into-docker/pem-reader {:mvn/version "1.0.2"}
-        com.squareup.okhttp3/okhttp-tls {:mvn/version "5.2.1"}}
+        com.squareup.okhttp3/okhttp-tls {:mvn/version "5.3.0"}}
  :aliases {:fetch-api {:replace-paths ["fetch_api"]
                        :extra-deps {io.swagger.parser.v3/swagger-parser {:mvn/version "2.1.35"}
                                     org.babashka/http-client {:mvn/version "0.4.23"}}
@@ -14,6 +14,6 @@
                                org.babashka/http-client {:mvn/version "0.4.23"}}
                   :main-opts ["-m" "cognitect.test-runner"]
                   :exec-fn cognitect.test-runner.api/test}
-           :build {:deps {io.github.clojure/tools.build {:git/tag "v0.10.10" :git/sha "deedd62"}
+           :build {:deps {io.github.clojure/tools.build {:git/tag "v0.10.11" :git/sha "c6c670a"}
                           slipset/deps-deploy {:mvn/version "0.2.2"}}
                    :ns-default build}}}
