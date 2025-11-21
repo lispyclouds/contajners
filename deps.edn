@@ -2,7 +2,7 @@
  :deps {org.clojure/data.json {:mvn/version "2.5.1"}
         unixsocket-http/unixsocket-http {:mvn/version "1.0.14"}
         into-docker/pem-reader {:mvn/version "1.0.2"}
-        com.squareup.okhttp3/okhttp-tls {:mvn/version "5.3.0"}}
+        com.squareup.okhttp3/okhttp-tls {:mvn/version "5.3.2"}}
  :aliases {:fetch-api {:replace-paths ["fetch_api"]
                        :extra-deps {io.swagger.parser.v3/swagger-parser {:mvn/version "2.1.35"}
                                     org.babashka/http-client {:mvn/version "0.4.23"}}

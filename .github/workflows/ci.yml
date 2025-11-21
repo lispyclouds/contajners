@@ -11,13 +11,13 @@ jobs:
 
     steps:
       - name: "Checkout code"
-        uses: "actions/checkout@v5"
+        uses: "actions/checkout@v6"
 
       - name: "Prepare Java"
         uses: "actions/setup-java@v5"
         with:
           distribution: "temurin"
-          java-version: "24"
+          java-version: "25"
 
       - name: "Prepare Clojure"
         uses: "DeLaGuardo/setup-clojure@master"
