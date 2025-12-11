@@ -39,7 +39,8 @@
                        "v1.48"
                        "v1.49"
                        "v1.50"
-                       "v1.51"]}
+                       "v1.51"
+                       "v1.52"]}
    :podman {:url "https://storage.googleapis.com/libpod-master-releases/swagger-%s.yaml"
             :doc-url "https://docs.podman.io/en/%s/_static/api.html"
             :namespaces #{"/libpod"}
@@ -112,7 +113,8 @@
                        "v5.6.0"
                        "v5.6.1"
                        "v5.6.2"
-                       "v5.7.0"]}})
+                       "v5.7.0"
+                       "v5.7.1"]}})
 
 (def resource-path "resources/contajners")
 
