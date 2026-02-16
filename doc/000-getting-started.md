@@ -2,7 +2,7 @@
 
 #### Clojure CLI/deps.edn
 ```clojure
-{org.clojars.lispyclouds/contajners {:mvn/version "1.0.7"}}
+{org.clojars.lispyclouds/contajners {:mvn/version "1.0.8"}}
 ```
 as a gitlib (prefer this method as new APIs are added more frequently than this is released on clojars):
 ```
@@ -11,12 +11,12 @@ as a gitlib (prefer this method as new APIs are added more frequently than this 
 
 #### Leiningen/Boot
 ```clojure
-[org.clojars.lispyclouds/contajners "1.0.7"]
+[org.clojars.lispyclouds/contajners "1.0.8"]
 ```
 
 #### Gradle
 ```groovy
-implementation "org.clojars.lispyclouds/contajners:1.0.7"
+implementation "org.clojars.lispyclouds/contajners:1.0.8"
 ```
 
 #### Maven
@@ -24,7 +24,7 @@ implementation "org.clojars.lispyclouds/contajners:1.0.7"
 <dependency>
   <groupId>org.clojars.lispyclouds</groupId>
   <artifactId>contajners</artifactId>
-  <version>1.0.7</version>
+  <version>1.0.8</version>
 </dependency>
 ```
 
@@ -35,7 +35,7 @@ add at runtime:
 (require '[babashka.deps :as deps])
 
 ; From maven
-(deps/add-deps '{:deps {org.clojars.lispyclouds/contajners {:mvn/version "1.0.7"}}})
+(deps/add-deps '{:deps {org.clojars.lispyclouds/contajners {:mvn/version "1.0.8"}}})
 
 ; From Github
 (deps/add-deps '{:deps {io.github.lispyclouds/contajners {:git/sha "<COMMIT ID HERE>"}}})
@@ -45,7 +45,7 @@ via [bb.edn](https://book.babashka.org/#_bb_edn)
 
 ```clojure
 ; Maven
-{:deps {org.clojars.lispyclouds/contajners {:mvn/version "1.0.7"}}}
+{:deps {org.clojars.lispyclouds/contajners {:mvn/version "1.0.8"}}}
 
 ; Github
 {:deps {io.github.lispyclouds/contajners {:git/sha "<LATEST COMMIT ID HERE>"}}}

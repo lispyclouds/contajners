@@ -381,7 +381,7 @@ Using contajners with babashka and [bbssh](https://github.com/epiccastle/bbssh) 
 
 ;; dynamically add bbssh and contajners to bb classpath
 (pods/load-pod 'epiccastle/bbssh "0.5.0")
-(deps/add-deps '{:deps {org.clojars.lispyclouds/contajners {:mvn/version "1.0.7"}}})
+(deps/add-deps '{:deps {org.clojars.lispyclouds/contajners {:mvn/version "1.0.8"}}})
 
 ;; require the ns that we need from the libs
 (require '[pod.epiccastle.bbssh.core :as bbssh]
