@@ -11,13 +11,13 @@ jobs:
 
     steps:
       - name: "Checkout code"
-        uses: "actions/checkout@v6"
+        uses: "actions/checkout@v7"
 
       - name: "Prepare Java"
         uses: "actions/setup-java@v5"
         with:
           distribution: "temurin"
-          java-version: "25"
+          java-version: "26"
 
       - name: "Prepare Clojure"
         uses: "DeLaGuardo/setup-clojure@master"
@@ -26,7 +26,7 @@ jobs:
           bb: "latest"
 
       - name: "Apply Cache"
-        uses: "actions/cache@v5"
+        uses: "actions/cache@v6"
         with:
           path: |
             ~/.m2/repository
