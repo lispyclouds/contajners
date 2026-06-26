@@ -4,7 +4,7 @@
 
 (def lib 'org.clojars.lispyclouds/contajners)
 
-(def version "1.0.8")
+(def version "1.0.9")
 
 (def class-dir "target/classes")
 
