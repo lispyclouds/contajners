@@ -125,7 +125,8 @@
             {:doc-url "https://docs.podman.io/en/%s/_static/api.html"
              :namespaces #{"/libpod"}
              :versions ["v6.0.0"
-                        "v6.0.1"]}}})
+                        "v6.0.1"
+                        "v6.0.2"]}}})
 
 (def resource-path "resources/contajners")
 
