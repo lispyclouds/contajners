@@ -120,7 +120,9 @@
                         "v5.7.1"
                         "v5.8.0"
                         "v5.8.1"
-                        "v5.8.2"]}
+                        "v5.8.2"
+                        "v5.8.3"
+                        "v5.8.4"]}
             "https://docs.podman.io/en/%s/_static/swagger.yaml"
             {:doc-url "https://docs.podman.io/en/%s/_static/api.html"
              :namespaces #{"/libpod"}
