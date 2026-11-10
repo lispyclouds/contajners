@@ -123,7 +123,9 @@
                         "v5.8.2"
                         "v5.8.3"
                         "v5.8.4"
-                        "v5.8.7"]}
+                        "v5.8.7"
+                        "v5.8.8"
+                        "v5.8.9"]}
             "https://docs.podman.io/en/%s/_static/swagger.yaml"
             {:doc-url "https://docs.podman.io/en/%s/_static/api.html"
              :namespaces #{"/libpod"}
@@ -134,7 +136,8 @@
                         "v6.1.1"
                         "v6.1.2"
                         "v6.1.3"
-                        "v6.1.4"]}}})
+                        "v6.1.4"
+                        "v6.2.0"]}}})
 
 (def resource-path "resources/contajners")
 
